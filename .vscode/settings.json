@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "CS6334njt220000.sln"
+    "dotnet.defaultSolution": "Team01.sln"
 }
