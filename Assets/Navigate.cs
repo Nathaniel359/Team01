@@ -25,8 +25,8 @@ public class Navigate : MonoBehaviour
         // move this logic to the agent's AI when we have it
         if (Input.GetKeyDown("l"))
         {
-            //current_room = GameObject.Find("Living Room Marker");
-            current_room = GameObject.Find("BedroomMaster Bathroom Marker");
+            current_room = GameObject.Find("Living Room Marker");
+            //current_room = GameObject.Find("BedroomMaster Bathroom Marker");
         }
     }
 }
