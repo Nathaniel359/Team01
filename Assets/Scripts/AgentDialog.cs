@@ -15,14 +15,13 @@ public class AgentDialog : MonoBehaviour
     private Camera playerCamera;
     private bool hasSentRequest = false;
 
-    // Navigation variables
+    // Menu navigation variables
     private int buttonIndex = 0;
     private float lastNavTime = 0f;
     private float navDelay = 0.5f;
     private GameObject[] dialogButtons;
     private Selectable currentUISelection;
-
-    private float previousSpeed = -1f; // Variable to store the previous speed
+    private float previousSpeed = -1f;
 
     void Update()
     {
@@ -117,19 +116,18 @@ public class AgentDialog : MonoBehaviour
 
         currentDialog.SetActive(true);
 
-        // Store the character's current speed and set it to 0
+        // Disable character movement
         GameObject character = GameObject.FindGameObjectWithTag("Character");
         if (character != null)
         {
             var movement = character.GetComponent<CharacterMovement>();
             if (movement != null)
             {
-                previousSpeed = movement.speed; // Store the current speed
-                movement.speed = 0; // Set speed to 0
+                previousSpeed = movement.speed;
+                movement.speed = 0;
             }
         }
 
-        // Find the buttons using tags (make sure they are tagged properly in the prefab or scene)
         dialogButtons = new GameObject[]
         {
             GameObject.FindGameObjectWithTag("Button1"),
@@ -210,7 +208,6 @@ public class AgentDialog : MonoBehaviour
         {
             Debug.Log($"Selected: {dialogButtons[buttonIndex].tag}");
 
-            // Check if Button3 is selected
             if (dialogButtons[buttonIndex].tag == "Button3")
             {
                 // Close the dialog menu
