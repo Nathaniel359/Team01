@@ -228,6 +228,8 @@ public class AgentDialog : MonoBehaviour
                         previousSpeed = -1f; // Reset the stored speed
                     }
                 }
+
+                hasSentRequest = false;
             }
         }
     }
