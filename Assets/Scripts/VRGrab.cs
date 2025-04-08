@@ -7,12 +7,12 @@ public class VRGrab : MonoBehaviour
     private Rigidbody grabbedRigidbody = null;
     private string grabbedTag = null;
 
-    private float grabDistance = 4f; // distance from the camera where the object stays
+    private float grabDistance = 5f; // distance from the camera where the object stays
     private float smoothSpeed = 10f;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetButtonDown("js10"))
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetButtonDown("js10"))
         {
             if (grabbedObject == null)
             {
