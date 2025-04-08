@@ -1,5 +1,7 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.Networking;
+using System.Collections;
 
 public class AgentDialogue : MonoBehaviour
 {
@@ -9,17 +11,16 @@ public class AgentDialogue : MonoBehaviour
     private Transform detectedPlayer;
     private GameObject currentDialogue;
     private Camera playerCamera;
+    private bool hasSentRequest = false;
 
     void Update()
     {
-        if (isPlayerDetected)
+        if (isPlayerDetected && Input.GetKeyDown(KeyCode.E))
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            if (!hasSentRequest)
             {
-                if (currentDialogue == null)
-                {
-                    CreateDialogue("Hello, I am an agent!");
-                }
+                StartCoroutine(GetGeminiResponse());
+                hasSentRequest = true;
             }
         }
 
@@ -29,7 +30,63 @@ public class AgentDialogue : MonoBehaviour
         }
     }
 
-    // Creates a dialogue canvas in front of the player
+    private IEnumerator GetGeminiResponse()
+    {
+        string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Environment.GEMINI_API_KEY;
+        string prompt = "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. Respond to: ";
+
+        string jsonRequestBody = @"{
+            ""contents"": [
+                {
+                    ""role"": ""user"",
+                    ""parts"": [
+                        {
+                            ""text"": """ + prompt + "Hi" + @"""
+                        }
+                    ]
+                }
+            ]
+        }";
+
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        {
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequestBody);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Gemini API Error: " + request.error);
+                CreateDialogue("Sorry, I can't help right now.");
+            }
+            else
+            {
+                string responseText = request.downloadHandler.text;
+                string extractedText = ExtractTextFromResponse(responseText);
+                Debug.Log("Gemini response: " + extractedText);
+                CreateDialogue(extractedText);
+            }
+        }
+    }
+
+    private string ExtractTextFromResponse(string json)
+    {
+        int textIndex = json.IndexOf("\"text\":");
+        if (textIndex != -1)
+        {
+            int start = json.IndexOf("\"", textIndex + 7) + 1;
+            int end = json.IndexOf("\"", start);
+            if (start != -1 && end != -1)
+            {
+                return json.Substring(start, end - start);
+            }
+        }
+        return "Sorry, I can't help right now.";
+    }
+
     private void CreateDialogue(string text)
     {
         currentDialogue = Instantiate(dialogueTemplate, dialogueCanvas.transform);
@@ -48,7 +105,6 @@ public class AgentDialogue : MonoBehaviour
         currentDialogue.SetActive(true);
     }
 
-    // Positions the dialogue canvas to face the player
     private void PositionDialogue()
     {
         Vector3 agentPosition = transform.position;
@@ -59,7 +115,6 @@ public class AgentDialogue : MonoBehaviour
         dialogueCanvas.transform.rotation = Quaternion.Euler(0, dialogueCanvas.transform.rotation.eulerAngles.y, 0);
     }
 
-    // Detects when the player is in range of the agent
     private void OnTriggerEnter(Collider other)
     {
         if (other.name == "Character")
@@ -69,7 +124,6 @@ public class AgentDialogue : MonoBehaviour
         }
     }
 
-    // Detects when the player leaves the range of the agent
     private void OnTriggerExit(Collider other)
     {
         if (other.name == "Character")
@@ -77,6 +131,8 @@ public class AgentDialogue : MonoBehaviour
             isPlayerDetected = false;
             detectedPlayer = null;
             playerCamera = null;
+            hasSentRequest = false;
+
             if (currentDialogue != null)
             {
                 Destroy(currentDialogue);
