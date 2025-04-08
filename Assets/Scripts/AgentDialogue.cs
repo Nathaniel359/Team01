@@ -40,7 +40,7 @@ public class AgentDialogue : MonoBehaviour
     private IEnumerator GetGeminiResponse()
     {
         string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Environment.GEMINI_API_KEY;
-        string prompt = "You are a real estate agent. Act professionally and describe the home's features briefly. Never use emojis in your response. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. Respond to: ";
+        string prompt = "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. For the first interaction, ask if the user wants to do a guided tour. Never use emojis and never generate a response more than 250 characters long. Respond to: ";
 
         string jsonRequestBody = @"{
             ""contents"": [
@@ -73,7 +73,6 @@ public class AgentDialogue : MonoBehaviour
             {
                 string responseText = request.downloadHandler.text;
                 string extractedText = ExtractTextFromResponse(responseText);
-                Debug.Log("Gemini response: " + extractedText);
                 StartCoroutine(TypeText(extractedText));
             }
         }
