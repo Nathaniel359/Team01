@@ -40,7 +40,7 @@ public class AgentDialogue : MonoBehaviour
     private IEnumerator GetGeminiResponse()
     {
         string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Environment.GEMINI_API_KEY;
-        string prompt = "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. Respond to: ";
+        string prompt = "You are a real estate agent. Act professionally and describe the home's features briefly. Never use emojis in your response. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. Respond to: ";
 
         string jsonRequestBody = @"{
             ""contents"": [
@@ -142,12 +142,15 @@ public class AgentDialogue : MonoBehaviour
 
     private void PositionDialogue()
     {
-        Vector3 agentPosition = transform.position;
-        Vector3 dialoguePosition = agentPosition;
-        dialogueCanvas.transform.position = dialoguePosition;
-        dialogueCanvas.transform.LookAt(playerCamera.transform);
-        dialogueCanvas.transform.Rotate(0, 180f, 0);
-        dialogueCanvas.transform.rotation = Quaternion.Euler(0, dialogueCanvas.transform.rotation.eulerAngles.y, 0);
+        if (playerCamera != null)
+        {
+            Vector3 cameraForward = playerCamera.transform.forward;
+            Vector3 cameraDown = -playerCamera.transform.up;
+            Vector3 dialoguePosition = playerCamera.transform.position + (cameraForward * 5f) + (cameraDown * 1.25f);
+
+            dialogueCanvas.transform.position = dialoguePosition;
+            dialogueCanvas.transform.rotation = playerCamera.transform.rotation;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
