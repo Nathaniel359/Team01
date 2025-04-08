@@ -19,6 +19,7 @@ public class AgentDialogue : MonoBehaviour
         {
             if (!hasSentRequest)
             {
+                ShowThinkingDialogue();
                 StartCoroutine(GetGeminiResponse());
                 hasSentRequest = true;
             }
@@ -28,6 +29,12 @@ public class AgentDialogue : MonoBehaviour
         {
             PositionDialogue();
         }
+    }
+
+    private void ShowThinkingDialogue()
+    {
+        CreateEmptyDialogue();
+        UpdateDialogueText("Thinking...");
     }
 
     private IEnumerator GetGeminiResponse()
@@ -60,14 +67,14 @@ public class AgentDialogue : MonoBehaviour
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.LogError("Gemini API Error: " + request.error);
-                CreateDialogue("Sorry, I can't help right now.");
+                UpdateDialogueText("Sorry, I can't help right now.");
             }
             else
             {
                 string responseText = request.downloadHandler.text;
                 string extractedText = ExtractTextFromResponse(responseText);
                 Debug.Log("Gemini response: " + extractedText);
-                CreateDialogue(extractedText);
+                StartCoroutine(TypeText(extractedText));
             }
         }
     }
@@ -87,11 +94,10 @@ public class AgentDialogue : MonoBehaviour
         return "Sorry, I can't help right now.";
     }
 
-    private void CreateDialogue(string text)
+    private void CreateEmptyDialogue()
     {
         currentDialogue = Instantiate(dialogueTemplate, dialogueCanvas.transform);
         currentDialogue.transform.SetParent(dialogueCanvas.transform, false);
-        currentDialogue.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = text;
 
         if (detectedPlayer != null)
         {
@@ -103,6 +109,35 @@ public class AgentDialogue : MonoBehaviour
         }
 
         currentDialogue.SetActive(true);
+    }
+
+    private void UpdateDialogueText(string text)
+    {
+        if (currentDialogue != null)
+        {
+            var textComponent = currentDialogue.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            if (textComponent != null)
+            {
+                textComponent.text = text;
+            }
+        }
+    }
+
+    private IEnumerator TypeText(string fullText)
+    {
+        if (currentDialogue != null)
+        {
+            var textComponent = currentDialogue.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            if (textComponent != null)
+            {
+                textComponent.text = "";
+                foreach (char c in fullText)
+                {
+                    textComponent.text += c;
+                    yield return new WaitForSeconds(0.03f);
+                }
+            }
+        }
     }
 
     private void PositionDialogue()
