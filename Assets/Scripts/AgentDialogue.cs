@@ -29,6 +29,7 @@ public class AgentDialogue : MonoBehaviour
         }
     }
 
+    // Creates a dialogue canvas in front of the player
     private void CreateDialogue(string text)
     {
         currentDialogue = Instantiate(dialogueTemplate, dialogueCanvas.transform);
@@ -47,9 +48,9 @@ public class AgentDialogue : MonoBehaviour
         currentDialogue.SetActive(true);
     }
 
+    // Positions the dialogue canvas to face the player
     private void PositionDialogue()
     {
-        // Spawn dialogue in front of agent
         Vector3 agentPosition = transform.position;
         Vector3 dialoguePosition = agentPosition;
         dialogueCanvas.transform.position = dialoguePosition;
@@ -58,6 +59,7 @@ public class AgentDialogue : MonoBehaviour
         dialogueCanvas.transform.rotation = Quaternion.Euler(0, dialogueCanvas.transform.rotation.eulerAngles.y, 0);
     }
 
+    // Detects when the player is in range of the agent
     private void OnTriggerEnter(Collider other)
     {
         if (other.name == "Character")
@@ -67,6 +69,7 @@ public class AgentDialogue : MonoBehaviour
         }
     }
 
+    // Detects when the player leaves the range of the agent
     private void OnTriggerExit(Collider other)
     {
         if (other.name == "Character")
