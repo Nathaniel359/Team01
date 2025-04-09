@@ -45,7 +45,7 @@ public class CharacterMovement : MonoBehaviour
         moveVect += forwardVect * vertComp;
 
         moveVect *= speed;
-     
+
 
         charCntrl.SimpleMove(moveVect);
 
