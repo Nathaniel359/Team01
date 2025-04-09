@@ -75,3 +75,5 @@ crashlytics-build.properties
 *_BackUpThisFolder_*
 
 Environment.cs
+Assets/Scripts/Environment.cs
+Assets/Scripts/Environment.cs.meta
