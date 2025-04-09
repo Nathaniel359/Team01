@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Grab
   - HeavyGrab
+  - Button1
+  - Button2
+  - Button3
+  - Character
   layers:
   - Default
   - TransparentFX
