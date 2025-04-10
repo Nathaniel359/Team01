@@ -290,6 +290,9 @@ public class CharacterRaycast : MonoBehaviour
     {
         rayLengthIndex = (rayLengthIndex + 1) % 3;
         rayLength = raycastLength[rayLengthIndex];
+        transform.GetComponent<VRGrab>().rayLength = raycastLength[rayLengthIndex];
+        transform.GetComponent<InteractionController>().rayLength = raycastLength[rayLengthIndex];
+        transform.GetComponent<HoverOutline>().rayLength = raycastLength[rayLengthIndex];
         settings.transform.Find("Raycast Length").GetComponentInChildren<TextMeshProUGUI>().text = "Raycast Length: " + rayLength + "m";
     }
 
