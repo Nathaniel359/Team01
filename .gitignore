@@ -73,3 +73,7 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 *_BackUpThisFolder_*
+
+Environment.cs
+Assets/Scripts/Environment.cs
+Assets/Scripts/Environment.cs.meta
