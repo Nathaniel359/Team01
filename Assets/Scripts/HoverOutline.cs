@@ -4,7 +4,9 @@ public class HoverOutline : MonoBehaviour
 {
     public Camera playerCamera;
     public float rayLength = 20f;
-    public Color outlineColor = Color.white;
+    public Color lightOutlineColor = Color.white;
+    public Color heavyOutlineColor = Color.green;
+    public Color interactOutlineColor = Color.yellow;
 
     private Outline lastHighlighted; // Store the last highlighted object
 
@@ -34,7 +36,21 @@ public class HoverOutline : MonoBehaviour
                 {
                     outline = hitObject.AddComponent<Outline>();
                     outline.OutlineMode = Outline.Mode.OutlineVisible;
-                    outline.OutlineColor = outlineColor;
+                    //check if interactable:
+                    var light = hit.collider.GetComponent<LightToggle>();
+                    var tv = hit.collider.GetComponent<TVToggle>();
+
+                    if(light != null || tv != null)
+                    {
+                        outline.OutlineColor = interactOutlineColor;
+                    } else if (hitObject.CompareTag("Grab"))
+                    {
+                        outline.OutlineColor = lightOutlineColor;
+                    } else
+                    {
+                        outline.OutlineColor = heavyOutlineColor;
+                    }
+                    
                     outline.OutlineWidth = 5f;
                     outline.enabled = false; // Keep disabled until hovered
                 }
