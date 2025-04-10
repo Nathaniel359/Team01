@@ -15,13 +15,14 @@ public class AgentDialog : MonoBehaviour
     private Camera playerCamera;
     private bool hasSentRequest = false;
 
-    // Menu navigation variables
     private int buttonIndex = 0;
     private float lastNavTime = 0f;
     private float navDelay = 0.5f;
     private GameObject[] dialogButtons;
     private Selectable currentUISelection;
     private float previousSpeed = -1f;
+    private bool inputFieldActive = false;
+    private TMP_InputField agentInputField;
 
     void Update()
     {
@@ -30,7 +31,7 @@ public class AgentDialog : MonoBehaviour
             if (!hasSentRequest)
             {
                 ShowThinkingDialog();
-                StartCoroutine(GetGeminiResponse());
+                StartCoroutine(SendToGemini(""));
                 hasSentRequest = true;
             }
         }
@@ -38,107 +39,26 @@ public class AgentDialog : MonoBehaviour
         if (currentDialog != null && playerCamera != null)
         {
             PositionDialog();
-            HandleDialogNavigation();
+            if (!inputFieldActive)
+                HandleDialogNavigation();
         }
     }
 
+    // Displays the dialog box with the "Thinking..." message
     private void ShowThinkingDialog()
     {
+        // Destroy existing dialog before creating a new one
+        if (currentDialog != null)
+        {
+            Destroy(currentDialog);
+            currentDialog = null;
+        }
+
         CreateEmptyDialog();
         UpdateDialogText("Thinking...");
     }
 
-    private IEnumerator GetGeminiResponse()
-    {
-        string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Environment.GEMINI_API_KEY;
-        string prompt = "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. For the first interaction, ask if the user wants to do a guided tour. Never use emojis and never generate a response more than 250 characters long. Respond to: ";
-
-        string jsonRequestBody = @"{
-            ""contents"": [
-                {
-                    ""role"": ""user"",
-                    ""parts"": [
-                        {
-                            ""text"": """ + prompt + "Hi" + @"""
-                        }
-                    ]
-                }
-            ]
-        }";
-
-        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
-        {
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequestBody);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError("Gemini API Error: " + request.error);
-                UpdateDialogText("Sorry, I can't help right now.");
-            }
-            else
-            {
-                string responseText = request.downloadHandler.text;
-                string extractedText = ExtractTextFromResponse(responseText);
-                StartCoroutine(TypeText(extractedText));
-            }
-        }
-    }
-
-    private string ExtractTextFromResponse(string json)
-    {
-        int textIndex = json.IndexOf("\"text\":");
-        if (textIndex != -1)
-        {
-            int start = json.IndexOf("\"", textIndex + 7) + 1;
-            int end = json.IndexOf("\"", start);
-            if (start != -1 && end != -1)
-            {
-                return json.Substring(start, end - start);
-            }
-        }
-        return "Sorry, I can't help right now.";
-    }
-
-    private void CreateEmptyDialog()
-    {
-        currentDialog = Instantiate(dialogTemplate, dialogBox.transform);
-        currentDialog.transform.SetParent(dialogBox.transform, false);
-
-        if (detectedPlayer != null)
-        {
-            playerCamera = detectedPlayer.GetComponentInChildren<Camera>();
-        }
-
-        currentDialog.SetActive(true);
-
-        // Disable character movement
-        GameObject character = GameObject.FindGameObjectWithTag("Character");
-        if (character != null)
-        {
-            var movement = character.GetComponent<CharacterMovement>();
-            if (movement != null)
-            {
-                previousSpeed = movement.speed;
-                movement.speed = 0;
-            }
-        }
-
-        dialogButtons = new GameObject[]
-        {
-            GameObject.FindGameObjectWithTag("Button1"),
-            GameObject.FindGameObjectWithTag("Button2"),
-            GameObject.FindGameObjectWithTag("Button3")
-        };
-
-        buttonIndex = 0;
-        HighlightButton(buttonIndex);
-    }
-
+    // Updates the text in the dialog box
     private void UpdateDialogText(string text)
     {
         if (currentDialog != null)
@@ -151,36 +71,49 @@ public class AgentDialog : MonoBehaviour
         }
     }
 
-    private IEnumerator TypeText(string fullText)
+    // Creates an empty dialog box
+    private void CreateEmptyDialog()
     {
-        if (currentDialog != null)
+        currentDialog = Instantiate(dialogTemplate, dialogBox.transform);
+        currentDialog.transform.SetParent(dialogBox.transform, false);
+
+        if (detectedPlayer != null)
+            playerCamera = detectedPlayer.GetComponentInChildren<Camera>();
+
+        currentDialog.SetActive(true);
+
+        dialogButtons = new GameObject[]
         {
-            var textComponent = currentDialog.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-            if (textComponent != null)
+            currentDialog.transform.Find("Button1")?.gameObject,
+            currentDialog.transform.Find("Button2")?.gameObject,
+            currentDialog.transform.Find("Button3")?.gameObject
+        };
+
+        var inputGO = currentDialog.transform.Find("InputField (TMP)");
+        if (inputGO != null)
+        {
+            agentInputField = inputGO.GetComponent<TMP_InputField>();
+            if (agentInputField != null)
+                agentInputField.gameObject.SetActive(false);
+        }
+
+        // Disable player movement
+        GameObject character = GameObject.FindGameObjectWithTag("Character");
+        if (character != null)
+        {
+            var movement = character.GetComponent<CharacterMovement>();
+            if (movement != null)
             {
-                textComponent.text = "";
-                foreach (char c in fullText)
-                {
-                    textComponent.text += c;
-                    yield return new WaitForSeconds(0.03f);
-                }
+                previousSpeed = movement.speed;
+                movement.speed = 0;
             }
         }
+
+        buttonIndex = 0;
+        HighlightButton(buttonIndex);
     }
 
-    private void PositionDialog()
-    {
-        if (playerCamera != null)
-        {
-            Vector3 cameraForward = playerCamera.transform.forward;
-            Vector3 cameraDown = -playerCamera.transform.up;
-            Vector3 dialogPosition = playerCamera.transform.position + (cameraForward * 5f) + (cameraDown * 1.25f);
-
-            dialogBox.transform.position = dialogPosition;
-            dialogBox.transform.rotation = playerCamera.transform.rotation;
-        }
-    }
-
+    // Handles navigation through the dialog buttons
     private void HandleDialogNavigation()
     {
         if (dialogButtons == null || dialogButtons.Length == 0) return;
@@ -206,34 +139,144 @@ public class AgentDialog : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.X))
         {
-            Debug.Log($"Selected: {dialogButtons[buttonIndex].tag}");
-
-            if (dialogButtons[buttonIndex].tag == "Button3")
+            if (dialogButtons[buttonIndex].tag == "Button1")
             {
-                // Close the dialog menu
-                if (currentDialog != null)
+                GameObject livingRoomMarker = GameObject.Find("Living Room Marker");
+                if (livingRoomMarker != null)
                 {
-                    Destroy(currentDialog);
-                    currentDialog = null;
+                    var agentNavigate = GetComponent<Navigate>();
+                    if (agentNavigate != null)
+                        agentNavigate.current_room = livingRoomMarker;
                 }
 
-                // Restore the player's previous speed
-                GameObject character = GameObject.FindGameObjectWithTag("Character");
-                if (character != null)
-                {
-                    var movement = character.GetComponent<CharacterMovement>();
-                    if (movement != null && previousSpeed >= 0)
-                    {
-                        movement.speed = previousSpeed; // Restore the stored speed
-                        previousSpeed = -1f; // Reset the stored speed
-                    }
-                }
-
-                hasSentRequest = false;
+                CloseDialog();
+            }
+            else if (dialogButtons[buttonIndex].tag == "Button2")
+            {
+                ActivateInputField();
+            }
+            else if (dialogButtons[buttonIndex].tag == "Button3")
+            {
+                CloseDialog();
             }
         }
     }
 
+    // Activates the input field for user input
+    private void ActivateInputField()
+    {
+        if (agentInputField != null)
+        {
+            inputFieldActive = true;
+            agentInputField.gameObject.SetActive(true);
+            agentInputField.ActivateInputField();
+            agentInputField.Select();
+            agentInputField.caretPosition = 0;
+            StartCoroutine(WaitForInput(agentInputField));
+        }
+    }
+
+    // Waits for user input and processes it
+    private IEnumerator WaitForInput(TMP_InputField inputField)
+    {
+        bool submitted = false;
+
+        inputField.onSubmit.AddListener((_) => submitted = true);
+
+        while (!submitted)
+            yield return null;
+
+        string question = inputField.text;
+        inputField.text = "";
+        inputField.onSubmit.RemoveAllListeners();
+        inputField.gameObject.SetActive(false);
+
+        inputFieldActive = false;
+        HighlightButton(0);
+        buttonIndex = 0;
+
+        ShowThinkingDialog();
+        StartCoroutine(SendToGemini(question));
+    }
+
+    // Sends the user's question to the Gemini API and processes the response
+    private IEnumerator SendToGemini(string question)
+    {
+        string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Environment.GEMINI_API_KEY;
+
+        string prompt = string.IsNullOrEmpty(question)
+            ? "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. For the first interaction, ask if the user wants to do a guided tour. Never use emojis and never generate a response more than 250 characters long. Respond to: Hi"
+            : "You are a professional real estate agent talking to a buyer during a home tour. Respond briefly and clearly to the user's question about a 3-bed, 2-bath, single-story home. You are currently inside the home. Never use emojis. Max 250 characters. Question: " + question;
+
+        string jsonRequestBody = @"{
+            ""contents"": [
+                {
+                    ""role"": ""user"",
+                    ""parts"": [
+                        {
+                            ""text"": """ + prompt + @"""
+                        }
+                    ]
+                }
+            ]
+        }";
+
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        {
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequestBody);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Gemini API Error: " + request.error);
+                UpdateDialogText("Sorry, something went wrong.");
+            }
+            else
+            {
+                string responseText = request.downloadHandler.text;
+                string extractedText = ExtractTextFromResponse(responseText);
+                StartCoroutine(TypeText(extractedText));
+            }
+        }
+    }
+
+    // Extracts the text from the Gemini API response
+    private string ExtractTextFromResponse(string json)
+    {
+        int textIndex = json.IndexOf("\"text\":");
+        if (textIndex != -1)
+        {
+            int start = json.IndexOf("\"", textIndex + 7) + 1;
+            int end = json.IndexOf("\"", start);
+            if (start != -1 && end != -1)
+                return json.Substring(start, end - start);
+        }
+        return "Sorry, I can't help right now.";
+    }
+
+    // Types the text character by character in the dialog box
+    private IEnumerator TypeText(string fullText)
+    {
+        if (currentDialog != null)
+        {
+            var textComponent = currentDialog.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            if (textComponent != null)
+            {
+                textComponent.text = "";
+                foreach (char c in fullText)
+                {
+                    textComponent.text += c;
+                    yield return new WaitForSeconds(0.03f);
+                }
+            }
+        }
+    }
+
+    // Highlights the selected button in the dialog box
     private void HighlightButton(int index)
     {
         for (int i = 0; i < dialogButtons.Length; i++)
@@ -248,6 +291,45 @@ public class AgentDialog : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(currentUISelection.gameObject);
     }
 
+    // Positions the dialog box in front of the player
+    private void PositionDialog()
+    {
+        if (playerCamera != null)
+        {
+            Vector3 cameraForward = playerCamera.transform.forward;
+            Vector3 cameraDown = -playerCamera.transform.up;
+            Vector3 dialogPosition = playerCamera.transform.position + (cameraForward * 5f) + (cameraDown * 1.25f);
+
+            dialogBox.transform.position = dialogPosition;
+            dialogBox.transform.rotation = playerCamera.transform.rotation;
+        }
+    }
+
+    // Closes the dialog box and resets player movement
+    private void CloseDialog()
+    {
+        if (currentDialog != null)
+        {
+            Destroy(currentDialog);
+            currentDialog = null;
+        }
+
+        GameObject character = GameObject.FindGameObjectWithTag("Character");
+        if (character != null)
+        {
+            var movement = character.GetComponent<CharacterMovement>();
+            if (movement != null && previousSpeed >= 0)
+            {
+                movement.speed = previousSpeed;
+                previousSpeed = -1f;
+            }
+        }
+
+        hasSentRequest = false;
+        inputFieldActive = false;
+    }
+
+    // When the player enters the trigger area, set the detected player and camera
     private void OnTriggerEnter(Collider other)
     {
         if (other.name == "Character")
@@ -257,6 +339,7 @@ public class AgentDialog : MonoBehaviour
         }
     }
 
+    // When the player exits the trigger area, reset the dialog and player state
     private void OnTriggerExit(Collider other)
     {
         if (other.name == "Character")
