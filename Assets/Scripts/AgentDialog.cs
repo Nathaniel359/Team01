@@ -9,9 +9,9 @@ public class AgentDialog : MonoBehaviour
 {
     public GameObject dialogBox;
     public GameObject dialogTemplate;
+    public GameObject currentDialog;
     private bool isPlayerDetected = false;
     private Transform detectedPlayer;
-    private GameObject currentDialog;
     private Camera playerCamera;
     private bool hasSentRequest = false;
 
@@ -23,6 +23,7 @@ public class AgentDialog : MonoBehaviour
     private float previousSpeed = -1f;
     private bool inputFieldActive = false;
     private TMP_InputField agentInputField;
+    private string chatHistory = ""; // added chat history field
 
     void Update()
     {
@@ -204,9 +205,15 @@ public class AgentDialog : MonoBehaviour
     {
         string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Environment.GEMINI_API_KEY;
 
-        string prompt = string.IsNullOrEmpty(question)
-            ? "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. For the first interaction, ask if the user wants to do a guided tour. Never use emojis and never generate a response more than 250 characters long. Respond to: Hi"
-            : "You are a professional real estate agent talking to a buyer during a home tour. Respond briefly and clearly to the user's question about a 3-bed, 2-bath, single-story home. You are currently inside the home. Never use emojis. Max 250 characters. Question: " + question;
+        string prompt;
+        if (string.IsNullOrEmpty(question))
+        {
+            prompt = "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. For the first interaction, ask if the user wants to do a guided tour. Never use emojis and never generate a response more than 250 characters long. Respond to: Hi";
+        }
+        else
+        {
+            prompt = "Chat History: " + chatHistory + "\nUser: " + question + "\nYou are a professional real estate agent talking to a buyer during a home tour. Respond briefly and clearly to the user's question about a 3-bed, 2-bath, single-story home. You are currently inside the home. Never use emojis. Max 250 characters.";
+        }
 
         string jsonRequestBody = @"{
             ""contents"": [
@@ -239,6 +246,11 @@ public class AgentDialog : MonoBehaviour
             {
                 string responseText = request.downloadHandler.text;
                 string extractedText = ExtractTextFromResponse(responseText);
+                // update chat history with new conversation
+                if (string.IsNullOrEmpty(question))
+                    chatHistory += "\nAgent: " + extractedText;
+                else
+                    chatHistory += "\nUser: " + question + "\nAgent: " + extractedText;
                 StartCoroutine(TypeText(extractedText));
             }
         }
