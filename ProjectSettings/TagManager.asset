@@ -11,6 +11,7 @@ TagManager:
   - Button3
   - Character
   - AgentInput
+  - InteractOnly
   layers:
   - Default
   - TransparentFX
