@@ -7,10 +7,20 @@ public class LightToggle : MonoBehaviour
     private bool isOn = false;
     public float fadeDuration = 1f; // seconds
     public float targetIntensity = 2f; // default light brightness
+    public AudioSource audioSource;
+    public AudioClip turnOnClip;
+    public AudioClip turnOffClip;
+
 
     public void ToggleLight()
     {
         isOn = !isOn;
+
+        if (audioSource != null)
+        {
+            audioSource.pitch = Random.Range(0.9f, 1.1f);
+            audioSource.PlayOneShot(isOn ? turnOnClip : turnOffClip);
+        }
 
         foreach (var light in lights)
         {
