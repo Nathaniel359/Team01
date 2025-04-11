@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using System;
 
 public class CharacterRaycast : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class CharacterRaycast : MonoBehaviour
     private GameObject currentObj;
     private bool isGrabbed;
     private Rigidbody rb;
-    private int index;
+    //private int index;
     private GameObject[] inventory;
     private float[] raycastLength;
     private float rayLength = 10f;
@@ -38,11 +39,11 @@ public class CharacterRaycast : MonoBehaviour
         cameraTransform = Camera.main.transform;
         lineRenderer = GetComponent<LineRenderer>();
         isGrabbed = false;
-        inventory = new GameObject[] {null, null, null};
-        index = 0;
-        raycastLength = new float[] {10, 25, 50};
-        speedArr = new float[] {20, 10, 5};
-        speedTypesArr = new string[] {"High", "Medium", "Low"};
+        inventory = new GameObject[] { null, null, null };
+        //index = 0;
+        raycastLength = new float[] { 10, 25, 50 };
+        speedArr = new float[] { 10, 5, 1 };
+        speedTypesArr = new string[] { "High", "Medium", "Low" };
     }
 
     void Update()
@@ -70,12 +71,12 @@ public class CharacterRaycast : MonoBehaviour
             GameObject currentHitObject = null;
 
             // If raycast is on an object
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, rayLength)) 
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, rayLength))
             {
                 endPosition = hit.point;
                 currentHitObject = hit.collider.gameObject;
 
-                if ((Input.GetButtonDown("js3") || Input.GetKeyDown(KeyCode.P)) && GetComponent<CharacterMovement>().enabled == true) 
+                if ((Input.GetButtonDown("js3") || Input.GetKeyDown(KeyCode.P)) && GetComponent<CharacterMovement>().enabled == true && GameObject.FindFirstObjectByType<AgentDialog>()?.currentDialog == null)
                 {
                     //GetComponent<CharacterMovement>().enabled = false;
                     CharacterController controller = GetComponent<CharacterController>();
@@ -86,11 +87,11 @@ public class CharacterRaycast : MonoBehaviour
                 }
 
                 // Open menu on button press
-                if (currentHitObject.GetComponentInChildren<Canvas>() != null && (Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("js2")) && !isGrabbed) 
+                if (currentHitObject.GetComponentInChildren<Canvas>() != null && (Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("js2")) && !isGrabbed)
                 {
                     // Disable movement
                     GetComponent<CharacterMovement>().enabled = false;
-                            
+
                     currentHitObject.GetComponentInChildren<Canvas>().enabled = true;
                     // Close previous menus
                     if (currentMenu != null && currentMenu != currentHitObject.GetComponentInChildren<Canvas>())
@@ -101,11 +102,8 @@ public class CharacterRaycast : MonoBehaviour
                     currentMenu = currentHitObject.GetComponentInChildren<Canvas>();
                     currentObj = currentHitObject;
 
-
-                    Vector3 targetPos = cameraTransform.position;          
-                    targetPos.y = currentMenu.transform.position.y;            
-                    currentMenu.transform.LookAt(targetPos);                   
-                    currentMenu.transform.Rotate(0, 180, 0); 
+                    EventSystem.current.SetSelectedGameObject(null);
+                    EventSystem.current.SetSelectedGameObject(currentMenu.GetComponentInChildren<Button>().gameObject);
                 }
 
                 if (currentHitObject != lastHitObject)
@@ -131,9 +129,10 @@ public class CharacterRaycast : MonoBehaviour
             }
 
             // Else remove outline from previous object
-            else 
+            else
             {
-                if (lastHitObject != null) {
+                if (lastHitObject != null)
+                {
                     if (lastHitObject.GetComponent<Outline>() != null)
                         lastHitObject.GetComponent<Outline>().enabled = false;
                     lastHitObject = null;
@@ -141,59 +140,59 @@ public class CharacterRaycast : MonoBehaviour
             }
 
             // Menu interaction
-            PointerEventData pointerData = new PointerEventData(EventSystem.current);       
-            pointerData.position = Camera.main.WorldToScreenPoint(endPosition);
-            List<RaycastResult> uiHits = new List<RaycastResult>();                         
-            EventSystem.current.RaycastAll(pointerData, uiHits);                            
+            // PointerEventData pointerData = new PointerEventData(EventSystem.current);       
+            // pointerData.position = Camera.main.WorldToScreenPoint(endPosition);
+            // List<RaycastResult> uiHits = new List<RaycastResult>();                         
+            // EventSystem.current.RaycastAll(pointerData, uiHits);                            
 
-            bool hoveredUI = false;
+            // bool hoveredUI = false;
 
             // Hover/select
-            foreach (RaycastResult result in uiHits)    
-            {
-                GameObject target = result.gameObject;                                      
+            // foreach (RaycastResult result in uiHits)    
+            // {
+            //     GameObject target = result.gameObject;                                      
 
-                endPosition = result.worldPosition;
+            //     endPosition = result.worldPosition;
 
-                if (target.GetComponent<Selectable>() != null)
-                {
-                    // Highlight (hover)
-                    if (lastHoveredUI != target)
-                    {
-                        if (lastHoveredUI != null)
-                            ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
+            //     if (target.GetComponent<Selectable>() != null)
+            //     {
+            //         // Highlight (hover)
+            //         if (lastHoveredUI != target)
+            //         {
+            //             if (lastHoveredUI != null)
+            //                 ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
 
-                        ExecuteEvents.Execute(target, pointerData, ExecuteEvents.pointerEnterHandler);
-                        lastHoveredUI = target;
-                    }
+            //             ExecuteEvents.Execute(target, pointerData, ExecuteEvents.pointerEnterHandler);
+            //             lastHoveredUI = target;
+            //         }
 
-                    // Select
-                    if (Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("js5"))
-                    {
-                        Button btn = target.GetComponent<Button>();
-                        if (btn != null)
-                            btn.onClick.Invoke();
-                    }
+            //         // Select
+            //         if (Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("js5"))
+            //         {
+            //             Button btn = target.GetComponent<Button>();
+            //             if (btn != null)
+            //                 btn.onClick.Invoke();
+            //         }
 
-                    // Only first hit
-                    break; 
-                }
-            }
-            if (!hoveredUI && lastHoveredUI != null)
-            {
-                ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
-                lastHoveredUI = null;
-            }
+            //         // Only first hit
+            //         break; 
+            //     }
+            // }
+            // if (!hoveredUI && lastHoveredUI != null)
+            // {
+            //     ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
+            //     lastHoveredUI = null;
+            // }
 
             if (lineRenderer != null)
             {
                 lineRenderer.SetPosition(0, origin);
                 lineRenderer.SetPosition(1, endPosition);
             }
-        } 
+        }
 
         // Release item
-        if (isGrabbed && (Input.GetButtonDown("js10") || Input.GetKeyDown(KeyCode.L))) 
+        if (isGrabbed && (Input.GetButtonDown("js10") || Input.GetKeyDown(KeyCode.L)))
         {
             currentObj.transform.SetParent(null);
             rb.useGravity = true;
@@ -204,14 +203,26 @@ public class CharacterRaycast : MonoBehaviour
         // Open settings
         if (Input.GetKeyDown(KeyCode.I) || Input.GetButtonDown("js0"))
         {
+            if (GameObject.FindFirstObjectByType<AgentDialog>()?.currentDialog != null)
+                return;
+
             if (currentMenu != null)
                 currentMenu.enabled = false;
             settings.gameObject.SetActive(true);
             // Resume is selected by default
-            EventSystem.current.SetSelectedGameObject(null);            
-            EventSystem.current.SetSelectedGameObject(settingsDefaultButton);     
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(settingsDefaultButton);
 
             GetComponent<CharacterMovement>().enabled = false;
+        }
+
+        if (currentMenu != null)
+        {
+            // menu should face player
+            Vector3 targetPos = cameraTransform.position;
+            targetPos.y = currentMenu.transform.position.y;
+            currentMenu.transform.LookAt(targetPos);
+            currentMenu.transform.Rotate(0, 180, 0);
         }
     }
 
@@ -233,6 +244,20 @@ public class CharacterRaycast : MonoBehaviour
             currentMenu.enabled = false;
 
         GetComponent<CharacterMovement>().enabled = true;
+    }
+
+    public void Rotate()
+    {
+        Slider slider = currentObj.GetComponentInChildren<Canvas>().transform.Find("Rotate Slider").GetComponent<Slider>();
+        currentObj.transform.rotation = Quaternion.Euler(0f, slider.value, 0f);
+        currentObj.GetComponentInChildren<Canvas>().transform.Find("Rotate Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Rotate: " + Math.Round(slider.value) + "°";
+    }
+
+    public void Scale()
+    {
+        Slider slider = currentObj.GetComponentInChildren<Canvas>().transform.Find("Scale Slider").GetComponent<Slider>();
+        currentObj.transform.localScale = new Vector3(slider.value, slider.value, slider.value);
+        currentObj.GetComponentInChildren<Canvas>().transform.Find("Scale Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Scale: " + Math.Round(slider.value / 1.5, 1) + "x";
     }
 
     // IEnumerator ShowMessage()
@@ -272,7 +297,7 @@ public class CharacterRaycast : MonoBehaviour
     //     GetComponent<CharacterMovement>().enabled = true;
     // }
 
-    public void Exit() 
+    public void Exit()
     {
         if (currentMenu != null)
             currentMenu.enabled = false;
@@ -357,7 +382,7 @@ public class CharacterRaycast : MonoBehaviour
     //     if (inventory[0] == null)
     //         index = 0;
     // }
-    
+
     public void Speed()
     {
         speedIndex = (speedIndex + 1) % 3;
