@@ -76,7 +76,7 @@ public class CharacterRaycast : MonoBehaviour
                 endPosition = hit.point;
                 currentHitObject = hit.collider.gameObject;
 
-                if ((Input.GetButtonDown("js3") || Input.GetKeyDown(KeyCode.P)) && GetComponent<CharacterMovement>().enabled == true)
+                if ((Input.GetButtonDown("js3") || Input.GetKeyDown(KeyCode.P)) && GetComponent<CharacterMovement>().enabled == true && GameObject.FindFirstObjectByType<AgentDialog>()?.currentDialog == null)
                 {
                     //GetComponent<CharacterMovement>().enabled = false;
                     CharacterController controller = GetComponent<CharacterController>();
