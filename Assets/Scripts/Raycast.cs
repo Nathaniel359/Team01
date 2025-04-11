@@ -41,7 +41,7 @@ public class CharacterRaycast : MonoBehaviour
         inventory = new GameObject[] {null, null, null};
         index = 0;
         raycastLength = new float[] {10, 25, 50};
-        speedArr = new float[] {20, 10, 5};
+        speedArr = new float[] {10, 5, 1};
         speedTypesArr = new string[] {"High", "Medium", "Low"};
     }
 
@@ -99,13 +99,7 @@ public class CharacterRaycast : MonoBehaviour
                     }
                     // Update reference
                     currentMenu = currentHitObject.GetComponentInChildren<Canvas>();
-                    currentObj = currentHitObject;
-
-
-                    Vector3 targetPos = cameraTransform.position;          
-                    targetPos.y = currentMenu.transform.position.y;            
-                    currentMenu.transform.LookAt(targetPos);                   
-                    currentMenu.transform.Rotate(0, 180, 0); 
+                    currentObj = currentHitObject; 
                 }
 
                 if (currentHitObject != lastHitObject)
@@ -213,6 +207,14 @@ public class CharacterRaycast : MonoBehaviour
 
             GetComponent<CharacterMovement>().enabled = false;
         }
+        if (currentMenu != null) 
+        {
+            // menu should face player
+            Vector3 targetPos = cameraTransform.position;          
+            targetPos.y = currentMenu.transform.position.y;            
+            currentMenu.transform.LookAt(targetPos);                   
+            currentMenu.transform.Rotate(0, 180, 0);
+        }
     }
 
     public void Grab()
@@ -235,6 +237,20 @@ public class CharacterRaycast : MonoBehaviour
         GetComponent<CharacterMovement>().enabled = true;
     }
 
+    public void Rotate()
+    {
+        Slider slider = currentObj.GetComponentInChildren<Canvas>().transform.Find("Rotate Slider").GetComponent<Slider>();
+        currentObj.transform.rotation = Quaternion.Euler(0f, slider.value, 0f);
+        currentObj.GetComponentInChildren<Canvas>().transform.Find("Rotate Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Rotate: " + slider.value + "°";
+    }
+
+    public void Scale()
+    {
+        Slider slider = currentObj.GetComponentInChildren<Canvas>().transform.Find("Scale Slider").GetComponent<Slider>();
+        currentObj.transform.localScale = new Vector3(slider.value, slider.value, slider.value);
+        currentObj.GetComponentInChildren<Canvas>().transform.Find("Scale Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Scale: " + slider.value + "x";
+    }
+    
     // IEnumerator ShowMessage()
     // {
     //     inventoryFullMessage.SetActive(true);
