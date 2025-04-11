@@ -18,7 +18,7 @@ public class PlayerTeleportation : MonoBehaviour
 
     void Update()
     {
-        if (!canTP) return;
+        if (!canTP || GameObject.FindFirstObjectByType<AgentDialog>()?.currentDialog != null) return;
 
         if (Input.GetKeyDown(KeyCode.Y) || Input.GetButtonDown("js3"))
         {
