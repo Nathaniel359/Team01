@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using System;
 
 public class CharacterRaycast : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class CharacterRaycast : MonoBehaviour
     private GameObject currentObj;
     private bool isGrabbed;
     private Rigidbody rb;
-    private int index;
+    //private int index;
     private GameObject[] inventory;
     private float[] raycastLength;
     private float rayLength = 10f;
@@ -39,7 +40,7 @@ public class CharacterRaycast : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
         isGrabbed = false;
         inventory = new GameObject[] {null, null, null};
-        index = 0;
+        //index = 0;
         raycastLength = new float[] {10, 25, 50};
         speedArr = new float[] {10, 5, 1};
         speedTypesArr = new string[] {"High", "Medium", "Low"};
@@ -100,6 +101,9 @@ public class CharacterRaycast : MonoBehaviour
                     // Update reference
                     currentMenu = currentHitObject.GetComponentInChildren<Canvas>();
                     currentObj = currentHitObject; 
+
+                    EventSystem.current.SetSelectedGameObject(null);            
+                    EventSystem.current.SetSelectedGameObject(currentMenu.GetComponentInChildren<Button>().gameObject);
                 }
 
                 if (currentHitObject != lastHitObject)
@@ -135,49 +139,49 @@ public class CharacterRaycast : MonoBehaviour
             }
 
             // Menu interaction
-            PointerEventData pointerData = new PointerEventData(EventSystem.current);       
-            pointerData.position = Camera.main.WorldToScreenPoint(endPosition);
-            List<RaycastResult> uiHits = new List<RaycastResult>();                         
-            EventSystem.current.RaycastAll(pointerData, uiHits);                            
+            // PointerEventData pointerData = new PointerEventData(EventSystem.current);       
+            // pointerData.position = Camera.main.WorldToScreenPoint(endPosition);
+            // List<RaycastResult> uiHits = new List<RaycastResult>();                         
+            // EventSystem.current.RaycastAll(pointerData, uiHits);                            
 
-            bool hoveredUI = false;
+            // bool hoveredUI = false;
 
             // Hover/select
-            foreach (RaycastResult result in uiHits)    
-            {
-                GameObject target = result.gameObject;                                      
+            // foreach (RaycastResult result in uiHits)    
+            // {
+            //     GameObject target = result.gameObject;                                      
 
-                endPosition = result.worldPosition;
+            //     endPosition = result.worldPosition;
 
-                if (target.GetComponent<Selectable>() != null)
-                {
-                    // Highlight (hover)
-                    if (lastHoveredUI != target)
-                    {
-                        if (lastHoveredUI != null)
-                            ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
+            //     if (target.GetComponent<Selectable>() != null)
+            //     {
+            //         // Highlight (hover)
+            //         if (lastHoveredUI != target)
+            //         {
+            //             if (lastHoveredUI != null)
+            //                 ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
 
-                        ExecuteEvents.Execute(target, pointerData, ExecuteEvents.pointerEnterHandler);
-                        lastHoveredUI = target;
-                    }
+            //             ExecuteEvents.Execute(target, pointerData, ExecuteEvents.pointerEnterHandler);
+            //             lastHoveredUI = target;
+            //         }
 
-                    // Select
-                    if (Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("js5"))
-                    {
-                        Button btn = target.GetComponent<Button>();
-                        if (btn != null)
-                            btn.onClick.Invoke();
-                    }
+            //         // Select
+            //         if (Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("js5"))
+            //         {
+            //             Button btn = target.GetComponent<Button>();
+            //             if (btn != null)
+            //                 btn.onClick.Invoke();
+            //         }
 
-                    // Only first hit
-                    break; 
-                }
-            }
-            if (!hoveredUI && lastHoveredUI != null)
-            {
-                ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
-                lastHoveredUI = null;
-            }
+            //         // Only first hit
+            //         break; 
+            //     }
+            // }
+            // if (!hoveredUI && lastHoveredUI != null)
+            // {
+            //     ExecuteEvents.Execute(lastHoveredUI, pointerData, ExecuteEvents.pointerExitHandler);
+            //     lastHoveredUI = null;
+            // }
 
             if (lineRenderer != null)
             {
@@ -207,6 +211,7 @@ public class CharacterRaycast : MonoBehaviour
 
             GetComponent<CharacterMovement>().enabled = false;
         }
+
         if (currentMenu != null) 
         {
             // menu should face player
@@ -241,14 +246,14 @@ public class CharacterRaycast : MonoBehaviour
     {
         Slider slider = currentObj.GetComponentInChildren<Canvas>().transform.Find("Rotate Slider").GetComponent<Slider>();
         currentObj.transform.rotation = Quaternion.Euler(0f, slider.value, 0f);
-        currentObj.GetComponentInChildren<Canvas>().transform.Find("Rotate Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Rotate: " + slider.value + "°";
+        currentObj.GetComponentInChildren<Canvas>().transform.Find("Rotate Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Rotate: " + Math.Round(slider.value) + "°";
     }
 
     public void Scale()
     {
         Slider slider = currentObj.GetComponentInChildren<Canvas>().transform.Find("Scale Slider").GetComponent<Slider>();
         currentObj.transform.localScale = new Vector3(slider.value, slider.value, slider.value);
-        currentObj.GetComponentInChildren<Canvas>().transform.Find("Scale Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Scale: " + slider.value + "x";
+        currentObj.GetComponentInChildren<Canvas>().transform.Find("Scale Slider").GetComponentInChildren<TextMeshProUGUI>().text = "Scale: " + Math.Round(slider.value/1.5, 1) + "x";
     }
     
     // IEnumerator ShowMessage()
