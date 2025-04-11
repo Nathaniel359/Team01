@@ -9,9 +9,9 @@ public class AgentDialog : MonoBehaviour
 {
     public GameObject dialogBox;
     public GameObject dialogTemplate;
+    public GameObject currentDialog;
     private bool isPlayerDetected = false;
     private Transform detectedPlayer;
-    private GameObject currentDialog;
     private Camera playerCamera;
     private bool hasSentRequest = false;
 
@@ -23,6 +23,7 @@ public class AgentDialog : MonoBehaviour
     private float previousSpeed = -1f;
     private bool inputFieldActive = false;
     private TMP_InputField agentInputField;
+    private string chatHistory = ""; // added chat history field
 
     void Update()
     {
@@ -84,7 +85,6 @@ public class AgentDialog : MonoBehaviour
 
         dialogButtons = new GameObject[]
         {
-            currentDialog.transform.Find("Button1")?.gameObject,
             currentDialog.transform.Find("Button2")?.gameObject,
             currentDialog.transform.Find("Button3")?.gameObject
         };
@@ -104,10 +104,15 @@ public class AgentDialog : MonoBehaviour
             var movement = character.GetComponent<CharacterMovement>();
             if (movement != null)
             {
-                previousSpeed = movement.speed;
+                if (previousSpeed < 0f)
+                {
+                    previousSpeed = movement.speed;
+                }
+
                 movement.speed = 0;
             }
         }
+
 
         buttonIndex = 0;
         HighlightButton(buttonIndex);
@@ -139,19 +144,7 @@ public class AgentDialog : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.X))
         {
-            if (dialogButtons[buttonIndex].tag == "Button1")
-            {
-                GameObject livingRoomMarker = GameObject.Find("Living Room Marker");
-                if (livingRoomMarker != null)
-                {
-                    var agentNavigate = GetComponent<Navigate>();
-                    if (agentNavigate != null)
-                        agentNavigate.current_room = livingRoomMarker;
-                }
-
-                CloseDialog();
-            }
-            else if (dialogButtons[buttonIndex].tag == "Button2")
+            if (dialogButtons[buttonIndex].tag == "Button2")
             {
                 ActivateInputField();
             }
@@ -204,9 +197,15 @@ public class AgentDialog : MonoBehaviour
     {
         string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Environment.GEMINI_API_KEY;
 
-        string prompt = string.IsNullOrEmpty(question)
-            ? "You are a real estate agent. Act professionally and describe the home's features briefly. Keep responses short and engaging. The home is 1 floor and has 3 bedrooms and 2 bathrooms. For the first interaction, ask if the user wants to do a guided tour. Never use emojis and never generate a response more than 250 characters long. Respond to: Hi"
-            : "You are a professional real estate agent talking to a buyer during a home tour. Respond briefly and clearly to the user's question about a 3-bed, 2-bath, single-story home. You are currently inside the home. Never use emojis. Max 250 characters. Question: " + question;
+        string userPrompt;
+        if (string.IsNullOrEmpty(question))
+        {
+            userPrompt = "You are a real estate agent. Act professionally but be cheerful. Ask how you can help out. Output must be a JSON object with 'response' and optional 'destination' field. Valid destinations: Entrance, LivingRoom, Bedroom1, Bedroom2, MasterBedroom, Office, Garage, Bathroom, or empty string. No emojis. Max 250 characters.";
+        }
+        else
+        {
+            userPrompt = "Chat History: " + chatHistory + "\nUser: " + question + "\nYou are a professional real estate agent giving a tour. Respond to the user clearly about a 3-bed, 1-bath, single-story home. There is an office, living room, and kitchen. It has 2000 square feet. The user might ask to be shown a specific room. However, if it is not explicitly mentioned do not populate destination. Do not infer the destination from context. Only respond in the following JSON format: {\\\"response\\\": \\\"<text>\\\", \\\"destination\\\": \\\"<room name or null>\\\"}. Valid destination values: Entrance, LivingRoom, Bedroom1, Bedroom2, MasterBedroom, Office, Garage, Bathroom, or empty string. If you want to take the user to a destination, first ask for confirmation. Only if they confirm do you populate destination and give a brief description of the destination. Never ask a question and have a destination value at the same time. No emojis. Max 250 characters.";
+        }
 
         string jsonRequestBody = @"{
             ""contents"": [
@@ -214,11 +213,22 @@ public class AgentDialog : MonoBehaviour
                     ""role"": ""user"",
                     ""parts"": [
                         {
-                            ""text"": """ + prompt + @"""
+                            ""text"": """ + userPrompt + @"""
                         }
                     ]
                 }
-            ]
+            ],
+            ""generationConfig"": {
+                ""response_mime_type"": ""application/json"",
+                ""response_schema"": {
+                    ""type"": ""OBJECT"",
+                    ""properties"": {
+                        ""response"": {""type"": ""STRING""},
+                        ""destination"": {""type"": ""STRING""}
+                    },
+                    ""required"": [""response""]
+                }
+            }
         }";
 
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
@@ -238,25 +248,70 @@ public class AgentDialog : MonoBehaviour
             else
             {
                 string responseText = request.downloadHandler.text;
-                string extractedText = ExtractTextFromResponse(responseText);
-                StartCoroutine(TypeText(extractedText));
+                (string reply, string destination) = ExtractResponseAndDestination(responseText);
+
+                if (string.IsNullOrEmpty(question))
+                    chatHistory += "\nAgent: " + reply;
+                else
+                    chatHistory += "\nUser: " + question + "\nAgent: " + reply;
+
+                StartCoroutine(HandleAgentResponse(reply, destination));
             }
         }
     }
 
-    // Extracts the text from the Gemini API response
-    private string ExtractTextFromResponse(string json)
+    // Extracts the response and destination from the Gemini API response
+    private (string, string) ExtractResponseAndDestination(string json)
     {
-        int textIndex = json.IndexOf("\"text\":");
-        if (textIndex != -1)
+        try
         {
-            int start = json.IndexOf("\"", textIndex + 7) + 1;
-            int end = json.IndexOf("\"", start);
-            if (start != -1 && end != -1)
-                return json.Substring(start, end - start);
+            var parsed = JsonUtility.FromJson<GeminiResponseWrapper>(json);
+            if (parsed != null && parsed.candidates.Length > 0)
+            {
+                var part = parsed.candidates[0].content.parts[0];
+                var data = JsonUtility.FromJson<GeminiStructuredResponse>(part.text);
+                return (data.response, data.destination);
+            }
         }
-        return "Sorry, I can't help right now.";
+        catch
+        {
+            Debug.LogWarning("Failed to parse structured response from Gemini.");
+        }
+
+        return ("Sorry, I can't help right now.", null);
     }
+
+    [System.Serializable]
+    private class GeminiResponseWrapper
+    {
+        public Candidate[] candidates;
+    }
+
+    [System.Serializable]
+    private class Candidate
+    {
+        public Content content;
+    }
+
+    [System.Serializable]
+    private class Content
+    {
+        public Part[] parts;
+    }
+
+    [System.Serializable]
+    private class Part
+    {
+        public string text;
+    }
+
+    [System.Serializable]
+    private class GeminiStructuredResponse
+    {
+        public string response;
+        public string destination;
+    }
+
 
     // Types the text character by character in the dialog box
     private IEnumerator TypeText(string fullText)
@@ -275,6 +330,59 @@ public class AgentDialog : MonoBehaviour
             }
         }
     }
+
+    // Navigates the agent to the specified destination if needed
+    private IEnumerator HandleAgentResponse(string reply, string destination)
+    {
+        yield return StartCoroutine(TypeText(reply));
+
+        if (!string.IsNullOrEmpty(destination))
+        {
+            Debug.Log("User wants to go to: " + destination);
+
+            yield return new WaitForSeconds(2f);
+
+            GameObject destinationMarker = null;
+
+            switch (destination)
+            {
+                case "Entrance":
+                    destinationMarker = GameObject.Find("Entrance Marker");
+                    break;
+                case "LivingRoom":
+                    destinationMarker = GameObject.Find("Living Room Marker");
+                    break;
+                case "Bedroom1":
+                    destinationMarker = GameObject.Find("Bedroom1 Marker");
+                    break;
+                case "Bedroom2":
+                    destinationMarker = GameObject.Find("Bedroom2 Marker");
+                    break;
+                case "MasterBedroom":
+                    destinationMarker = GameObject.Find("BedroomMaster Marker");
+                    break;
+                case "Office":
+                    destinationMarker = GameObject.Find("Office Marker");
+                    break;
+                case "Garage":
+                    destinationMarker = GameObject.Find("Garage Marker");
+                    break;
+                case "Bathroom":
+                    destinationMarker = GameObject.Find("BathroomCommon Marker");
+                    break;
+            }
+
+            if (destinationMarker != null)
+            {
+                var agentNavigate = GetComponent<Navigate>();
+                if (agentNavigate != null)
+                    agentNavigate.current_room = destinationMarker;
+            }
+
+            CloseDialog();
+        }
+    }
+
 
     // Highlights the selected button in the dialog box
     private void HighlightButton(int index)
@@ -351,8 +459,7 @@ public class AgentDialog : MonoBehaviour
 
             if (currentDialog != null)
             {
-                Destroy(currentDialog);
-                currentDialog = null;
+                CloseDialog();
             }
         }
     }
