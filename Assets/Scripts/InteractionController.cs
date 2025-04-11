@@ -5,6 +5,13 @@ public class InteractionController : MonoBehaviour
     public Camera mainCamera;
     public float rayLength = 10f;
 
+    private LineRenderer lineRenderer;
+
+    private void Start()
+    {
+        lineRenderer = transform.GetComponent<LineRenderer>();
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -15,12 +22,12 @@ public class InteractionController : MonoBehaviour
 
     void ToggleOnOff()
     {
-        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // cast a ray from center of the view
+        Vector3 rayOrigin = lineRenderer.GetPosition(0);//mainCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, rayLength))
+        if (Physics.Raycast(rayOrigin, mainCamera.transform.forward, out hit, rayLength))
         {
-            // Try to toggle a lamp
+            // Try to toggle a light
             var light = hit.collider.GetComponent<LightToggle>();
             if (light != null)
             {
@@ -35,6 +42,21 @@ public class InteractionController : MonoBehaviour
                 tv.ToggleTV();
                 return;
             }
+
+            var door = hit.collider.GetComponent<DoorToggle>();
+            if (door != null)
+            {
+                door.ToggleDoor();
+                return;
+            }
+
+            var sit = hit.collider.GetComponent<SitTarget>();
+            if (sit != null)
+            {
+                sit.ToggleSit();
+                return;
+            }
+
         }
     }
 
