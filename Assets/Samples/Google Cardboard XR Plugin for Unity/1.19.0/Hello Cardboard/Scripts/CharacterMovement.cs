@@ -74,7 +74,7 @@ public class CharacterMovement : MonoBehaviour
     {
         if (footstepSource != null && footstepClip != null)
         {
-            footstepSource.pitch = Random.Range(0.95f, 1.05f); // slight variation
+            footstepSource.pitch = Random.Range(0.5f, 1.5f); // slight variation
             footstepSource.PlayOneShot(footstepClip);
         }
     }
