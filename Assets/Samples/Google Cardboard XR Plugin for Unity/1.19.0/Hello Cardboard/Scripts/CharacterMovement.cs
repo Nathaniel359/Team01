@@ -12,16 +12,19 @@ public class CharacterMovement : MonoBehaviour
     [Tooltip("Should be checked if using the Bluetooth Controller to move. If using keyboard, leave this unchecked.")]
     public bool joyStickMode;
 
-    // Start is called before the first frame update
+    [Header("Footstep Settings")]
+    public AudioSource footstepSource;
+    public AudioClip footstepClip;
+
+    private float stepTimer = 0f;
+
     void Start()
     {
         charCntrl = GetComponent<CharacterController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        //Get horizontal and Vertical movements
         float horComp = Input.GetAxis("Horizontal");
         float vertComp = Input.GetAxis("Vertical");
 
@@ -33,7 +36,6 @@ public class CharacterMovement : MonoBehaviour
 
         Vector3 moveVect = Vector3.zero;
 
-        //Get look Direction
         Vector3 cameraLook = cameraObj.transform.forward;
         cameraLook.y = 0f;
         cameraLook = cameraLook.normalized;
@@ -46,9 +48,35 @@ public class CharacterMovement : MonoBehaviour
 
         moveVect *= speed;
 
-
         charCntrl.SimpleMove(moveVect);
 
+        // Footstep Sound Logic
+        if (charCntrl.velocity.magnitude > 0.1f && charCntrl.isGrounded)
+        {
+            // Adjust step interval based on movement speed
+            float adjustedInterval = Mathf.Clamp(3f / speed, 0.2f, 1f); // tweak this formula as needed
+
+            stepTimer += Time.deltaTime;
+            if (stepTimer >= adjustedInterval)
+            {
+                PlayFootstep();
+                stepTimer = 0f;
+            }
+        }
+        else
+        {
+            stepTimer = 0f;
+        }
 
     }
+
+    void PlayFootstep()
+    {
+        if (footstepSource != null && footstepClip != null)
+        {
+            footstepSource.pitch = Random.Range(0.5f, 1.5f); // slight variation
+            footstepSource.PlayOneShot(footstepClip);
+        }
+    }
+
 }
