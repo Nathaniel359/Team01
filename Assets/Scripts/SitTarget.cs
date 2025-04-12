@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Handles sitting
 public class SitTarget : MonoBehaviour
 {
     public GameObject player;

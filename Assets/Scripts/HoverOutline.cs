@@ -1,11 +1,13 @@
+using System.Collections;
 using UnityEngine;
 
+// Handles highlighting of objects in the scene
 public class HoverOutline : MonoBehaviour
 {
     public Camera playerCamera;
     public float rayLength = 20f;
     public Color lightOutlineColor = Color.white;
-    public Color heavyOutlineColor = Color.green;
+    public Color heavyOutlineColor = Color.black;
     public Color interactOutlineColor = Color.yellow;
 
     private Outline lastHighlighted; // Store the last highlighted object
@@ -14,16 +16,72 @@ public class HoverOutline : MonoBehaviour
 
     private LineRenderer lineRenderer;
 
-
     private void Start()
     {
         lineRenderer = transform.GetComponent<LineRenderer>();
+        StartCoroutine(HighlightAllObjectsWithTags());
+    }
+
+    // Briefly highlight all objects (helps fix outline bugs)
+    private IEnumerator HighlightAllObjectsWithTags()
+    {
+        string[] tags = { "Grab", "HeavyGrab", "InteractOnly" };
+
+        foreach (string tag in tags)
+        {
+            GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
+            foreach (GameObject obj in objects)
+            {
+                Outline outline = obj.GetComponent<Outline>();
+                if (outline == null)
+                {
+                    outline = obj.AddComponent<Outline>();
+                    outline.OutlineMode = Outline.Mode.OutlineVisible;
+
+                    if (tag == "InteractOnly")
+                    {
+                        outline.OutlineColor = interactOutlineColor;
+                    }
+                    else if (tag == "Grab")
+                    {
+                        outline.OutlineColor = lightOutlineColor;
+                    }
+                    else
+                    {
+                        outline.OutlineColor = Color.black;
+                    }
+
+                    outline.OutlineWidth = 10f;
+                }
+
+                outline.enabled = true;
+                var rend = obj.GetComponent<Renderer>();
+                if (rend != null)
+                {
+                    rend.material = new Material(rend.material); // breaks material sharing
+                }
+            }
+        }
+
+        yield return new WaitForSeconds(1f);
+
+        foreach (string tag in tags)
+        {
+            GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
+            foreach (GameObject obj in objects)
+            {
+                Outline outline = obj.GetComponent<Outline>();
+                if (outline != null)
+                {
+                    outline.enabled = false;
+                }
+            }
+        }
     }
 
     void Update()
     {
-
-        Vector3 rayOrigin = lineRenderer.GetPosition(0);//playerCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 rayOrigin = lineRenderer.GetPosition(0);
         RaycastHit hit;
 
         if (Physics.Raycast(rayOrigin, playerCamera.transform.forward, out hit, rayLength))
@@ -44,18 +102,20 @@ public class HoverOutline : MonoBehaviour
                     var sit = hit.collider.GetComponent<SitTarget>();
                     var door = hit.collider.GetComponent<DoorToggle>();
 
-                    if(hitObject.CompareTag("InteractOnly") || light != null || tv != null || sit != null || door != null)
+                    if (hitObject.CompareTag("InteractOnly") || light != null || tv != null || sit != null || door != null)
                     {
                         outline.OutlineColor = interactOutlineColor;
-                    } else if (hitObject.CompareTag("Grab"))
+                    }
+                    else if (hitObject.CompareTag("Grab"))
                     {
                         outline.OutlineColor = lightOutlineColor;
-                    } else
-                    {
-                        outline.OutlineColor = heavyOutlineColor;
                     }
-                    
-                    outline.OutlineWidth = 5f;
+                    else
+                    {
+                        outline.OutlineColor = Color.black;
+                    }
+
+                    outline.OutlineWidth = 10f;
                     outline.enabled = false; // Keep disabled until hovered
                 }
 

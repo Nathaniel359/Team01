@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+// Handles light toggling and fading
 public class LightToggle : MonoBehaviour
 {
     public Light[] lights;
