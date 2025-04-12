@@ -16,7 +16,7 @@ public class CharacterRaycast : MonoBehaviour
     // public Canvas inventoryDisplay;
     // public GameObject inventoryDefaultButton;
     // public GameObject inventoryFullMessage;
-
+    private int colorAccess;
     private LineRenderer lineRenderer;
     private GameObject lastHitObject = null;
     private GameObject lastHoveredUI;
@@ -44,6 +44,7 @@ public class CharacterRaycast : MonoBehaviour
         raycastLength = new float[] { 10, 25, 50 };
         speedArr = new float[] { 10, 5, 1 };
         speedTypesArr = new string[] { "High", "Medium", "Low" };
+        colorAccess = 0;
     }
 
     void Update()
@@ -104,6 +105,7 @@ public class CharacterRaycast : MonoBehaviour
 
                     EventSystem.current.SetSelectedGameObject(null);
                     EventSystem.current.SetSelectedGameObject(currentMenu.GetComponentInChildren<Button>().gameObject);
+                    menuColors();
                 }
 
                 if (currentHitObject != lastHitObject)
@@ -224,6 +226,114 @@ public class CharacterRaycast : MonoBehaviour
             currentMenu.transform.LookAt(targetPos);
             currentMenu.transform.Rotate(0, 180, 0);
         }
+    }
+
+    public enum AccessibilityTheme
+    {
+        Default,
+        HighContrast,
+        ColorblindTritanopia
+    }
+    public void menuColors()
+    {
+        AccessibilityTheme theme = (AccessibilityTheme)colorAccess;
+        ColorBlock colors = ColorBlock.defaultColorBlock;
+
+        switch (theme)
+        {
+            case AccessibilityTheme.Default:
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(0.8f, 0.8f, 0.8f);
+                colors.pressedColor = new Color(0.6f, 0.6f, 0.6f);
+                colors.selectedColor = new Color(0.8f, 0.8f, 0.8f);
+                colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+                break;
+
+            case AccessibilityTheme.HighContrast:
+                colors.normalColor = Color.black;
+                colors.highlightedColor = Color.yellow;
+                colors.pressedColor = new Color(1f, 0.5f, 0f);
+                colors.selectedColor = Color.yellow;
+                colors.disabledColor = new Color(0.2f, 0.2f, 0.2f);
+                break;
+
+            case AccessibilityTheme.ColorblindTritanopia:
+                colors.normalColor = new Color(0.1f, 0.4f, 0.8f);
+                colors.highlightedColor = new Color(0.2f, 0.6f, 1f);
+                colors.pressedColor = new Color(0f, 0.3f, 0.6f);
+                colors.selectedColor = new Color(0.2f, 0.6f, 1f);
+                colors.disabledColor = new Color(0.4f, 0.4f, 0.4f);
+                break;
+        }
+
+        // Apply to all buttons in the current menu
+        Button[] buttons = currentMenu.GetComponentsInChildren<Button>();
+        foreach (Button btn in buttons)
+        {
+            btn.colors = colors;
+        }
+    }
+
+    public void SetAccessibilityTheme(TMP_Dropdown dropdown)
+    {
+        int themeIndex = 0;
+
+        switch (dropdown.value)
+        {
+            case 0:
+                themeIndex = 0;
+                colorAccess = 0;
+                break;
+            case 1:
+                themeIndex = 1;
+                colorAccess = 1;
+                break;
+            case 2: 
+                themeIndex = 2;
+                colorAccess = 2;
+                break;
+
+        }
+
+        AccessibilityTheme theme = (AccessibilityTheme)themeIndex;
+        ColorBlock colors = ColorBlock.defaultColorBlock;
+
+        switch (theme)
+        {
+            case AccessibilityTheme.Default:
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(0.8f, 0.8f, 0.8f);
+                colors.pressedColor = new Color(0.6f, 0.6f, 0.6f);
+                colors.selectedColor = new Color(0.8f, 0.8f, 0.8f);
+                colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+                break;
+
+            case AccessibilityTheme.HighContrast:
+                colors.normalColor = Color.black;
+                colors.highlightedColor = Color.yellow;
+                colors.pressedColor = new Color(1f, 0.5f, 0f);
+                colors.selectedColor = Color.yellow;
+                colors.disabledColor = new Color(0.2f, 0.2f, 0.2f);
+                break;
+
+            case AccessibilityTheme.ColorblindTritanopia:
+                colors.normalColor = new Color(0.1f, 0.4f, 0.8f);
+                colors.highlightedColor = new Color(0.2f, 0.6f, 1f);
+                colors.pressedColor = new Color(0f, 0.3f, 0.6f);
+                colors.selectedColor = new Color(0.2f, 0.6f, 1f);
+                colors.disabledColor = new Color(0.4f, 0.4f, 0.4f);
+                break;
+        }
+
+        Debug.Log("Theme changed to: " + ((AccessibilityTheme)themeIndex).ToString());
+        // Apply to all buttons in the current menu
+        Button[] buttons = settings.GetComponentsInChildren<Button>();
+        foreach (Button btn in buttons)
+        {
+            btn.colors = colors;
+        }
+
+        dropdown.colors = colors;
     }
 
     public void Grab()
