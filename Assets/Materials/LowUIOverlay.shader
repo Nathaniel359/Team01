@@ -21,7 +21,7 @@ Shader "UI/Overlay"
 
 		Tags
 		{
-			"Queue" = "Transparent+500"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PreviewType"="Plane"
