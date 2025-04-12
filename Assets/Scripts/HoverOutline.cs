@@ -44,17 +44,19 @@ public class HoverOutline : MonoBehaviour
                     var sit = hit.collider.GetComponent<SitTarget>();
                     var door = hit.collider.GetComponent<DoorToggle>();
 
-                    if(hitObject.CompareTag("InteractOnly") || light != null || tv != null || sit != null || door != null)
+                    if (hitObject.CompareTag("InteractOnly") || light != null || tv != null || sit != null || door != null)
                     {
                         outline.OutlineColor = interactOutlineColor;
-                    } else if (hitObject.CompareTag("Grab"))
+                    }
+                    else if (hitObject.CompareTag("Grab"))
                     {
                         outline.OutlineColor = lightOutlineColor;
-                    } else
+                    }
+                    else
                     {
                         outline.OutlineColor = heavyOutlineColor;
                     }
-                    
+
                     outline.OutlineWidth = 5f;
                     outline.enabled = false; // Keep disabled until hovered
                 }
