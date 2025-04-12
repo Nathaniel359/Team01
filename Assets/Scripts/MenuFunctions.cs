@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Settings menu functions
 public class MenuFunctions : MonoBehaviour
 {
     public GameObject character;

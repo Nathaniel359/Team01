@@ -321,7 +321,7 @@ public class RaycastManager : MonoBehaviour
         currentInteractableWithMenu = interactable;
 
         Vector3 directionToCharacter = (character.transform.position - interactable.transform.position).normalized;
-        selectedMenuCanvas.transform.position = interactable.transform.position + Vector3.up * 1f + directionToCharacter * 1f;
+        selectedMenuCanvas.transform.position = interactable.transform.position + Vector3.up * 1.5f + directionToCharacter * 1f;
 
         selectedMenuCanvas.transform.LookAt(Camera.main.transform);
         selectedMenuCanvas.transform.Rotate(0, 180, 0);
@@ -383,6 +383,86 @@ public class RaycastManager : MonoBehaviour
      */
     private bool HandleMenu(GameObject menuCanvas, string[] buttonTags, ref int buttonIndex, ref float lastNavTime, float navDelay)
     {
+        if (menuCanvas.activeSelf)
+        {
+            float vertComp = Input.GetAxis("Vertical");
+            if (Time.time - lastNavTime > navDelay)
+            {
+                if (vertComp > 0.5f && buttonIndex > 0)
+                {
+                    if (currentUISelection != null)
+                        currentUISelection.GetComponent<Image>().color = Color.white;
+
+                    // Find the next active button going up
+                    int newIndex = buttonIndex - 1;
+                    GameObject nextButton = null;
+
+                    while (newIndex >= 0)
+                    {
+                        nextButton = GameObject.FindGameObjectWithTag(buttonTags[newIndex]);
+                        if (nextButton != null && nextButton.activeSelf)
+                            break;
+                        newIndex--;
+                    }
+
+                    if (newIndex >= 0 && nextButton != null && nextButton.activeSelf)
+                    {
+                        buttonIndex = newIndex;
+                        nextButton.GetComponent<Image>().color = Color.yellow;
+                        currentUISelection = nextButton.GetComponent<Selectable>();
+                        lastNavTime = Time.time;
+                    }
+                }
+                else if (vertComp < -0.5f && buttonIndex < buttonTags.Length - 1)
+                {
+                    if (currentUISelection != null)
+                        currentUISelection.GetComponent<Image>().color = Color.white;
+
+                    // Find the next active button going down
+                    int newIndex = buttonIndex + 1;
+                    GameObject nextButton = null;
+
+                    while (newIndex < buttonTags.Length)
+                    {
+                        nextButton = GameObject.FindGameObjectWithTag(buttonTags[newIndex]);
+                        if (nextButton != null && nextButton.activeSelf)
+                            break;
+                        newIndex++;
+                    }
+
+                    if (newIndex < buttonTags.Length && nextButton != null && nextButton.activeSelf)
+                    {
+                        buttonIndex = newIndex;
+                        nextButton.GetComponent<Image>().color = Color.yellow;
+                        currentUISelection = nextButton.GetComponent<Selectable>();
+                        lastNavTime = Time.time;
+                    }
+                }
+            }
+
+            // Handle menu item selection
+            if (Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y))
+            {
+                MenuFunctions menuFunctions = GetComponent<MenuFunctions>();
+                switch (buttonTags[buttonIndex])
+                {
+                    case "Resume":
+                        menuCanvas.SetActive(false);
+                        EnableCharacterMovementAndLineRenderer();
+                        break;
+                    case "RaycastLength":
+                        menuFunctions.SetRaycastLength();
+                        break;
+                    case "Speed":
+                        menuFunctions.SetSpeed();
+                        break;
+                    case "Accessibility":
+                        Debug.Log("Accessibility settings not implemented yet.");
+                        break;
+                }
+            }
+            return true;
+        }
         return false;
     }
 
