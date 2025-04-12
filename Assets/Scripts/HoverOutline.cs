@@ -7,7 +7,7 @@ public class HoverOutline : MonoBehaviour
     public Camera playerCamera;
     public float rayLength = 20f;
     public Color lightOutlineColor = Color.white;
-    public Color heavyOutlineColor = Color.green;
+    public Color heavyOutlineColor = Color.black;
     public Color interactOutlineColor = Color.yellow;
 
     private Outline lastHighlighted; // Store the last highlighted object
@@ -48,13 +48,18 @@ public class HoverOutline : MonoBehaviour
                     }
                     else
                     {
-                        outline.OutlineColor = heavyOutlineColor;
+                        outline.OutlineColor = Color.black;
                     }
 
-                    outline.OutlineWidth = 5f;
+                    outline.OutlineWidth = 10f;
                 }
 
                 outline.enabled = true;
+                var rend = obj.GetComponent<Renderer>();
+                if (rend != null)
+                {
+                    rend.material = new Material(rend.material); // breaks material sharing
+                }
             }
         }
 
@@ -107,10 +112,10 @@ public class HoverOutline : MonoBehaviour
                     }
                     else
                     {
-                        outline.OutlineColor = heavyOutlineColor;
+                        outline.OutlineColor = Color.black;
                     }
 
-                    outline.OutlineWidth = 5f;
+                    outline.OutlineWidth = 10f;
                     outline.enabled = false; // Keep disabled until hovered
                 }
 

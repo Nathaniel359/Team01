@@ -4,6 +4,13 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using TMPro;
 
+public enum AccessibilityTheme
+{
+    Default,
+    HighContrast,
+    ColorblindTritanopia
+}
+
 // Main class for raycasting and interaction
 public class RaycastManager : MonoBehaviour
 {
@@ -15,9 +22,9 @@ public class RaycastManager : MonoBehaviour
     public GameObject lightMenuCanvas;
     public GameObject settingsMenuCanvas;
     public EventSystem eventSystem;
-
     public TextMeshProUGUI rotateLabel;
     public TextMeshProUGUI scaleLabel;
+    public Material overlayMaterial;
 
     private string[] settingsButtonTags = { "Resume", "RaycastLength", "Speed", "Accessibility" };
     private int currentButtonIndex;
@@ -27,12 +34,12 @@ public class RaycastManager : MonoBehaviour
     private Selectable currentUISelection = null;
     private Selectable lastHoveredUI = null;
     private GameObject activeObjectMenuCanvas = null;
-
     private Slider selectedSlider = null;
     public float sliderSpeed = 50f;
-
     private float navigationDelay = 0.2f;
     private float lastNavigationTime = 0f;
+    private bool isDropdownOpen = false;
+    private AccessibilityTheme currentTheme = AccessibilityTheme.Default;
 
     void Update()
     {
@@ -135,8 +142,16 @@ public class RaycastManager : MonoBehaviour
                             Slider slider = selectable.GetComponent<Slider>();
 
                             Image image = selectable.GetComponent<Image>();
-                            if (image != null)
+                            if (currentTheme == AccessibilityTheme.HighContrast)
+                            {
+                                TextMeshProUGUI text = selectable.GetComponentInChildren<TextMeshProUGUI>();
+                                if (text != null) text.color = Color.yellow;
+                            }
+                            else if (image != null)
+                            {
                                 image.color = Color.yellow;
+                            }
+
 
                             if (slider != null)
                             {
@@ -238,9 +253,17 @@ public class RaycastManager : MonoBehaviour
 
                     if (!isStillHovering)
                     {
-                        Image image = lastHoveredUI.GetComponent<Image>();
-                        if (image != null)
-                            image.color = Color.white;
+                        if (currentTheme == AccessibilityTheme.HighContrast)
+                        {
+                            TextMeshProUGUI text = lastHoveredUI.GetComponentInChildren<TextMeshProUGUI>();
+                            if (text != null) text.color = Color.white;
+                        }
+                        else
+                        {
+                            Image image = lastHoveredUI.GetComponent<Image>();
+                            if (image != null) image.color = Color.white;
+                        }
+
 
                         lastHoveredUI = null;
                         currentUISelection = null;
@@ -385,13 +408,31 @@ public class RaycastManager : MonoBehaviour
     {
         if (menuCanvas.activeSelf)
         {
+            // Prevent navigation of settings buttons if the dropdown is open
+            if (isDropdownOpen)
+            {
+                HandleAccessibilityDropdown();
+                return true;
+            }
+
             float vertComp = Input.GetAxis("Vertical");
             if (Time.time - lastNavTime > navDelay)
             {
                 if (vertComp > 0.5f && buttonIndex > 0)
                 {
                     if (currentUISelection != null)
-                        currentUISelection.GetComponent<Image>().color = Color.white;
+                    {
+                        if (currentTheme == AccessibilityTheme.HighContrast)
+                        {
+                            TextMeshProUGUI text = currentUISelection.GetComponentInChildren<TextMeshProUGUI>();
+                            if (text != null) text.color = currentTheme == AccessibilityTheme.Default ? Color.black : Color.white;
+                        }
+                        else
+                        {
+                            currentUISelection.GetComponent<Image>().color = Color.white;
+                        }
+                    }
+
 
                     // Find the next active button going up
                     int newIndex = buttonIndex - 1;
@@ -408,15 +449,32 @@ public class RaycastManager : MonoBehaviour
                     if (newIndex >= 0 && nextButton != null && nextButton.activeSelf)
                     {
                         buttonIndex = newIndex;
-                        nextButton.GetComponent<Image>().color = Color.yellow;
+                        if (currentTheme == AccessibilityTheme.HighContrast)
+                        {
+                            TextMeshProUGUI text = nextButton.GetComponentInChildren<TextMeshProUGUI>();
+                            if (text != null) text.color = Color.yellow;
+                        }
+                        else
+                        {
+                            nextButton.GetComponent<Image>().color = Color.yellow;
+                        }
+
                         currentUISelection = nextButton.GetComponent<Selectable>();
                         lastNavTime = Time.time;
                     }
                 }
                 else if (vertComp < -0.5f && buttonIndex < buttonTags.Length - 1)
                 {
-                    if (currentUISelection != null)
-                        currentUISelection.GetComponent<Image>().color = Color.white;
+                    if (currentTheme == AccessibilityTheme.HighContrast)
+                    {
+                        TextMeshProUGUI text = currentUISelection.GetComponentInChildren<TextMeshProUGUI>();
+                        if (text != null) text.color = Color.white;
+                    }
+                    else
+                    {
+                        Image image = currentUISelection.GetComponent<Image>();
+                        if (image != null) image.color = Color.white;
+                    }
 
                     // Find the next active button going down
                     int newIndex = buttonIndex + 1;
@@ -433,7 +491,15 @@ public class RaycastManager : MonoBehaviour
                     if (newIndex < buttonTags.Length && nextButton != null && nextButton.activeSelf)
                     {
                         buttonIndex = newIndex;
-                        nextButton.GetComponent<Image>().color = Color.yellow;
+                        if (currentTheme == AccessibilityTheme.HighContrast)
+                        {
+                            TextMeshProUGUI text = nextButton.GetComponentInChildren<TextMeshProUGUI>();
+                            if (text != null) text.color = Color.yellow;
+                        }
+                        else
+                        {
+                            nextButton.GetComponent<Image>().color = Color.yellow;
+                        }
                         currentUISelection = nextButton.GetComponent<Selectable>();
                         lastNavTime = Time.time;
                     }
@@ -457,7 +523,7 @@ public class RaycastManager : MonoBehaviour
                         menuFunctions.SetSpeed();
                         break;
                     case "Accessibility":
-                        Debug.Log("Accessibility settings not implemented yet.");
+                        HandleAccessibilityDropdown();
                         break;
                 }
             }
@@ -465,6 +531,200 @@ public class RaycastManager : MonoBehaviour
         }
         return false;
     }
+
+    /*
+     * Helper function to handle the accessibility dropdown
+     */
+    private void HandleAccessibilityDropdown()
+    {
+        TMP_Dropdown dropdown = GameObject.FindGameObjectWithTag("Accessibility").GetComponent<TMP_Dropdown>();
+        if (dropdown != null)
+        {
+            if (!isDropdownOpen)
+            {
+                dropdown.Show();
+                StartCoroutine(ApplyDropdownOverlayMaterial());
+                isDropdownOpen = true;
+                return;
+            }
+
+            float vertComp = Input.GetAxis("Vertical");
+            if (Time.time - lastNavigationTime > navigationDelay)
+            {
+                if (vertComp > 0.5f && dropdown.value > 0)
+                {
+                    dropdown.value--;
+                    lastNavigationTime = Time.time;
+                }
+                else if (vertComp < -0.5f && dropdown.value < dropdown.options.Count - 1)
+                {
+                    dropdown.value++;
+                    lastNavigationTime = Time.time;
+                }
+            }
+
+            if (Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y))
+            {
+                dropdown.Hide();
+                ApplyAccessibilityTheme(dropdown);
+                isDropdownOpen = false;
+            }
+        }
+    }
+
+    /*
+     * Helper function to apply the selected accessibility theme
+     */
+    private void ApplyAccessibilityTheme(TMP_Dropdown dropdown)
+    {
+        int themeIndex = dropdown.value;
+        AccessibilityTheme theme = (AccessibilityTheme)themeIndex;
+        ColorBlock colors = ColorBlock.defaultColorBlock;
+        currentTheme = theme;
+
+        Color textColor = Color.black;
+        Sprite backgroundSprite = null;
+
+        switch (theme)
+        {
+            case AccessibilityTheme.Default:
+                colors.normalColor = Color.white;
+                colors.highlightedColor = colors.normalColor;
+                colors.pressedColor = new Color(0.6f, 0.6f, 0.6f);
+                colors.selectedColor = colors.normalColor;
+                colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+                textColor = Color.black;
+                break;
+
+            case AccessibilityTheme.HighContrast:
+                colors.normalColor = Color.black;
+                colors.highlightedColor = colors.normalColor;
+                colors.pressedColor = new Color(1f, 0.5f, 0f);
+                colors.selectedColor = colors.normalColor;
+                colors.disabledColor = new Color(0.2f, 0.2f, 0.2f);
+                textColor = Color.white;
+                backgroundSprite = Resources.Load<Sprite>("HighContrastBackground");
+                break;
+
+            case AccessibilityTheme.ColorblindTritanopia:
+                colors.normalColor = new Color(0.1f, 0.4f, 0.8f);
+                colors.highlightedColor = colors.normalColor;
+                colors.pressedColor = new Color(0f, 0.3f, 0.6f);
+                colors.selectedColor = colors.normalColor;
+                colors.disabledColor = new Color(0.4f, 0.4f, 0.4f);
+                textColor = Color.white;
+                backgroundSprite = Resources.Load<Sprite>("TritanopiaBackground");
+                break;
+        }
+
+        // Update settings menu buttons
+        UpdateButtons(settingsMenuCanvas, colors, textColor, backgroundSprite);
+
+        // Update object menu buttons
+        UpdateButtons(heavyMenuCanvas, colors, textColor, backgroundSprite);
+        UpdateButtons(lightMenuCanvas, colors, textColor, backgroundSprite);
+
+        // Update dropdown colors
+        if (dropdown != null)
+        {
+            TMP_Dropdown.DropdownEvent dropdownEvent = dropdown.onValueChanged;
+            dropdown.onValueChanged = null;
+
+            var dropdownColors = dropdown.colors;
+            dropdownColors.normalColor = colors.normalColor;
+            dropdownColors.highlightedColor = colors.highlightedColor;
+            dropdownColors.pressedColor = colors.pressedColor;
+            dropdownColors.selectedColor = colors.selectedColor;
+            dropdownColors.disabledColor = colors.disabledColor;
+            dropdown.colors = dropdownColors;
+
+            dropdown.onValueChanged = dropdownEvent;
+
+            // Update dropdown label text color
+            TextMeshProUGUI label = dropdown.GetComponentInChildren<TextMeshProUGUI>();
+            if (currentTheme == AccessibilityTheme.HighContrast)
+            {
+                label.color = Color.yellow;
+            }
+            else if (currentTheme == AccessibilityTheme.ColorblindTritanopia)
+            {
+                label.color = Color.white;
+            }
+            else
+            {
+                label.color = Color.black;
+            }
+        }
+
+        Transform dropdownList = GameObject.Find("Dropdown List")?.transform;
+        if (dropdownList != null)
+        {
+            Image[] dropdownImages = dropdownList.GetComponentsInChildren<Image>(true);
+            foreach (var img in dropdownImages)
+            {
+                if (backgroundSprite != null)
+                {
+                    img.sprite = backgroundSprite;
+                    img.type = Image.Type.Sliced;
+                }
+                img.color = colors.normalColor; // or whatever you want visible
+            }
+
+            TextMeshProUGUI[] texts = dropdownList.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach (var text in texts)
+            {
+                text.color = textColor;
+            }
+        }
+    }
+
+    /*
+     * Helper function to apply the overlay material to dropdown images
+     */
+    private System.Collections.IEnumerator ApplyDropdownOverlayMaterial()
+    {
+        yield return null;
+
+        GameObject dropdownList = GameObject.Find("Dropdown List");
+        if (dropdownList != null)
+        {
+            var images = dropdownList.GetComponentsInChildren<Image>(true);
+            foreach (var img in images)
+            {
+                img.material = overlayMaterial; // Assign your UIOverlay material here
+            }
+        }
+    }
+
+
+    /*
+     * Helper function to update button colors and text
+     */
+    private void UpdateButtons(GameObject canvas, ColorBlock colors, Color textColor, Sprite background)
+    {
+        if (canvas == null) return;
+
+        Button[] buttons = canvas.GetComponentsInChildren<Button>(true);
+        foreach (Button btn in buttons)
+        {
+            btn.colors = colors;
+
+            Image btnImage = btn.GetComponent<Image>();
+            if (btnImage != null && background != null)
+            {
+                btnImage.sprite = background;
+                btnImage.type = Image.Type.Sliced;
+            }
+
+            TextMeshProUGUI tmp = btn.GetComponentInChildren<TextMeshProUGUI>();
+            if (tmp != null)
+            {
+                tmp.color = textColor;
+            }
+        }
+    }
+
+
 
     /*
      * Helper function to disable character movement and line renderer
@@ -503,19 +763,7 @@ public class RaycastManager : MonoBehaviour
 
         if (settingsMenuCanvas.activeSelf)
         {
-            settingsMenuCanvas.SetActive(false);
-            character.GetComponent<CharacterMovement>().enabled = true;
-            if (lineRenderer != null)
-            {
-                lineRenderer.enabled = true;
-            }
-            if (currentUISelection != null)
-            {
-                Image image = currentUISelection.GetComponent<Image>();
-                if (image != null)
-                    image.color = Color.white;
-                currentUISelection = null;
-            }
+            return;
         }
         else
         {
@@ -535,8 +783,15 @@ public class RaycastManager : MonoBehaviour
             if (firstButton != null)
             {
                 Image image = firstButton.GetComponent<Image>();
-                if (image != null)
-                    image.color = Color.yellow;
+                if (currentTheme == AccessibilityTheme.HighContrast)
+                {
+                    TextMeshProUGUI text = firstButton.GetComponentInChildren<TextMeshProUGUI>();
+                    if (text != null) text.color = Color.yellow;
+                }
+                else
+                {
+                    firstButton.GetComponent<Image>().color = Color.yellow;
+                }
                 currentUISelection = firstButton.GetComponent<Selectable>();
             }
         }
