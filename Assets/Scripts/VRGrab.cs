@@ -4,7 +4,7 @@ public class VRGrab : MonoBehaviour
 {
     public Camera mainCamera;
     public float rayLength = 10f;
-    private GameObject grabbedObject = null;
+    public GameObject grabbedObject = null;
     private Rigidbody grabbedRigidbody = null;
     private string grabbedTag = null;
 
@@ -41,8 +41,9 @@ public class VRGrab : MonoBehaviour
         }
     }
 
-    void TryGrabObject()
+    public void TryGrabObject()
     {
+        Debug.Log("TryGrabObject called");
         Vector3 rayOrigin = lineRenderer.GetPosition(0);//mainCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
@@ -64,18 +65,36 @@ public class VRGrab : MonoBehaviour
         }
     }
 
+    public void TryGrabObject(GameObject targetObject)
+    {
+        // Check if target is valid and has appropriate tag
+        if (targetObject == null) return;
+        if (targetObject.CompareTag("Grab") || targetObject.CompareTag("HeavyGrab"))
+        {
+            grabbedTag = targetObject.tag;
+            grabbedObject = targetObject;
+            grabbedRigidbody = grabbedObject.GetComponent<Rigidbody>();
+            if (grabbedRigidbody != null)
+            {
+                grabbedRigidbody.useGravity = false;
+            }
+            grabDistance = Vector3.Distance(mainCamera.transform.position, grabbedObject.transform.position);
+        }
+    }
+
     void MoveGrabbedObject()
     {
         if (grabbedObject != null)
         {
             // calculate smooth movement to target position in front of the camera
             Vector3 targetPosition = mainCamera.transform.position + mainCamera.transform.forward * grabDistance;
-            if(grabbedTag == "HeavyGrab")
+            if (grabbedTag == "HeavyGrab")
             {
                 targetPosition.y = grabbedObject.transform.position.y; // Lock Y-axis movement
                 grabbedRigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionY;
                 smoothSpeed = 1f;
-            } else
+            }
+            else
             {
                 grabbedRigidbody.constraints = RigidbodyConstraints.None;
                 smoothSpeed = 10f;
@@ -86,7 +105,7 @@ public class VRGrab : MonoBehaviour
         }
     }
 
-    void ReleaseObject()
+    public void ReleaseObject()
     {
         if (grabbedObject != null)
         {

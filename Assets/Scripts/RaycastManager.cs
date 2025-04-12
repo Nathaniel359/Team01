@@ -10,9 +10,9 @@ public class RaycastManager : MonoBehaviour
     public float rayDistance = 10f;
     public GameObject teleportationPlane;
     public GameObject character;
-    public GameObject objectMenuCanvas;
+    public GameObject heavyMenuCanvas;
+    public GameObject lightMenuCanvas;
     public GameObject settingsMenuCanvas;
-    public GraphicRaycaster uiRaycaster;
     public EventSystem eventSystem;
 
     private string[] settingsButtonTags = { "Resume", "RaycastLength", "Speed", "Accessibility" };
@@ -23,6 +23,7 @@ public class RaycastManager : MonoBehaviour
     private Selectable currentUISelection = null;
     private float navigationDelay = 0.2f;
     private float lastNavigationTime = 0f;
+    private GameObject activeObjectMenuCanvas = null;
 
     void Update()
     {
@@ -46,91 +47,94 @@ public class RaycastManager : MonoBehaviour
         /*
          * Handle object menu raycast
          */
-        if (objectMenuCanvas.activeSelf && uiRaycaster != null && eventSystem != null)
+        if (activeObjectMenuCanvas != null && activeObjectMenuCanvas.activeSelf && eventSystem != null)
         {
-            character.GetComponent<CharacterMovement>().enabled = false;
-            pointerEventData = new PointerEventData(eventSystem);
-            Ray ray = new Ray(startPosition, transform.forward);
-            Plane uiPlane = new Plane(objectMenuCanvas.transform.forward, objectMenuCanvas.transform.position);
-            float distance;
-
-            if (uiPlane.Raycast(ray, out distance))
+            GraphicRaycaster currentRaycaster = activeObjectMenuCanvas.GetComponent<GraphicRaycaster>();
+            if (currentRaycaster != null)
             {
-                Vector3 worldPos = ray.GetPoint(distance);
-                Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPos);
-                pointerEventData.position = screenPos;
+                character.GetComponent<CharacterMovement>().enabled = false;
+                pointerEventData = new PointerEventData(eventSystem);
+                Ray ray = new Ray(startPosition, transform.forward);
+                Plane uiPlane = new Plane(activeObjectMenuCanvas.transform.forward, activeObjectMenuCanvas.transform.position);
+                float distance;
 
-                // Perform UI raycast
-                List<RaycastResult> results = new List<RaycastResult>();
-                uiRaycaster.Raycast(pointerEventData, results);
-
-                if (results.Count > 0)
+                if (uiPlane.Raycast(ray, out distance))
                 {
-                    // Find the button that is being hovered over
-                    GameObject uiElement = results[0].gameObject;
-                    Selectable selectable = uiElement.GetComponentInParent<Selectable>();
+                    Vector3 worldPos = ray.GetPoint(distance);
+                    Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+                    pointerEventData.position = screenPos;
 
-                    if (selectable != null)
+                    List<RaycastResult> results = new List<RaycastResult>();
+                    currentRaycaster.Raycast(pointerEventData, results);
+
+                    if (results.Count > 0)
                     {
-                        // Highlight the button
-                        currentUISelection = selectable;
-                        Button button = selectable as Button;
-                        button.GetComponent<Image>().color = Color.yellow;
+                        GameObject uiElement = results[0].gameObject;
+                        Selectable selectable = uiElement.GetComponentInParent<Selectable>();
 
-                        // Handle button click
-                        if (Input.GetButtonDown(InputMappings.ButtonB) || Input.GetKeyDown(KeyCode.B))
+                        if (selectable != null)
                         {
-                            if (button != null)
+                            currentUISelection = selectable;
+                            Button button = selectable as Button;
+                            button.GetComponent<Image>().color = Color.yellow;
+
+                            if (Input.GetButtonDown(InputMappings.ButtonB) || Input.GetKeyDown(KeyCode.B))
                             {
-                                // Grab
-                                if (button.gameObject.name == "Grab")
+                                if (button != null)
                                 {
-                                    currentInteractableWithMenu.Grab();
+                                    if (button.gameObject.name == "Grab")
+                                    {
+                                        if (currentInteractableWithMenu != null)
+                                        {
+                                            character.GetComponent<VRGrab>().TryGrabObject(currentInteractableWithMenu.gameObject);
+                                        }
+                                    }
+                                    CloseObjectMenu();
                                 }
-
-                                // Close menu
-                                CloseObjectMenu();
                             }
-                        }
 
-                        // Set endPosition of ray to the hit point on the menu
-                        endPosition = worldPos;
+                            endPosition = worldPos;
+                        }
                     }
                 }
             }
         }
 
-        // If the object menu item is no longer open, re-enable character movement
-        if (currentUISelection != null)
+        if (currentUISelection != null && activeObjectMenuCanvas != null)
         {
-            pointerEventData = new PointerEventData(eventSystem);
-            Ray ray = new Ray(startPosition, transform.forward);
-            Plane uiPlane = new Plane(objectMenuCanvas.transform.forward, objectMenuCanvas.transform.position);
-            float distance;
-
-            if (uiPlane.Raycast(ray, out distance))
+            GraphicRaycaster currentRaycaster = activeObjectMenuCanvas.GetComponent<GraphicRaycaster>();
+            if (currentRaycaster != null)
             {
-                Vector3 worldPos = ray.GetPoint(distance);
-                Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPos);
-                pointerEventData.position = screenPos;
-                List<RaycastResult> results = new List<RaycastResult>();
-                uiRaycaster.Raycast(pointerEventData, results);
+                pointerEventData = new PointerEventData(eventSystem);
+                Ray ray = new Ray(startPosition, transform.forward);
+                Plane uiPlane = new Plane(activeObjectMenuCanvas.transform.forward, activeObjectMenuCanvas.transform.position);
+                float distance;
 
-                bool isStillHovering = false;
-                foreach (var result in results)
+                if (uiPlane.Raycast(ray, out distance))
                 {
-                    if (result.gameObject.GetComponentInParent<Selectable>().gameObject == currentUISelection.gameObject)
+                    Vector3 worldPos = ray.GetPoint(distance);
+                    Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+                    pointerEventData.position = screenPos;
+
+                    List<RaycastResult> results = new List<RaycastResult>();
+                    currentRaycaster.Raycast(pointerEventData, results);
+
+                    bool isStillHovering = false;
+                    foreach (var result in results)
                     {
-                        isStillHovering = true;
-                        break;
+                        if (result.gameObject.GetComponentInParent<Selectable>().gameObject == currentUISelection.gameObject)
+                        {
+                            isStillHovering = true;
+                            break;
+                        }
                     }
-                }
 
-                if (!isStillHovering)
-                {
-                    character.GetComponent<CharacterMovement>().enabled = true;
-                    currentUISelection.GetComponent<Image>().color = Color.white;
-                    currentUISelection = null;
+                    if (!isStillHovering)
+                    {
+                        character.GetComponent<CharacterMovement>().enabled = true;
+                        currentUISelection.GetComponent<Image>().color = Color.white;
+                        currentUISelection = null;
+                    }
                 }
             }
         }
@@ -165,11 +169,9 @@ public class RaycastManager : MonoBehaviour
                 Outline outline = interactable.GetComponent<Outline>();
                 if (outline != null)
                 {
-                    // Enable outline
                     outline.enabled = true;
                     currentInteractable = interactable;
-                    // Display menu when X button is pressed
-                    if (!interactable.isGrabbed && (Input.GetButtonDown(InputMappings.ButtonX) || Input.GetKeyDown(KeyCode.X)))
+                    if (Input.GetButtonDown(InputMappings.ButtonX) || Input.GetKeyDown(KeyCode.X))
                     {
                         OpenObjectMenu(interactable);
                     }
@@ -187,26 +189,32 @@ public class RaycastManager : MonoBehaviour
         }
     }
 
-    // Helper function that displays the object menu and positions it in front of the object
     private void OpenObjectMenu(InteractableObject interactable)
     {
-        if (objectMenuCanvas.activeSelf && currentInteractableWithMenu == interactable)
+        GameObject selectedMenuCanvas = interactable.CompareTag("Grab") ? lightMenuCanvas : heavyMenuCanvas;
+
+        if (selectedMenuCanvas.activeSelf && currentInteractableWithMenu == interactable)
         {
-            objectMenuCanvas.SetActive(false);
+            selectedMenuCanvas.SetActive(false);
             currentInteractableWithMenu = null;
             currentUISelection = null;
             character.GetComponent<CharacterMovement>().enabled = true;
+            activeObjectMenuCanvas = null;
             return;
         }
-        objectMenuCanvas.SetActive(false);
+
+        heavyMenuCanvas.SetActive(false);
+        lightMenuCanvas.SetActive(false);
+
         currentInteractableWithMenu = interactable;
-        objectMenuCanvas.transform.position = interactable.transform.position + Vector3.up * 2f;
-        objectMenuCanvas.transform.LookAt(Camera.main.transform);
-        objectMenuCanvas.transform.Rotate(0, 180, 0);
-        objectMenuCanvas.SetActive(true);
+        selectedMenuCanvas.transform.position = interactable.transform.position + Vector3.up * 1f;
+        selectedMenuCanvas.transform.LookAt(Camera.main.transform);
+        selectedMenuCanvas.transform.Rotate(0, 180, 0);
+        selectedMenuCanvas.SetActive(true);
+
+        activeObjectMenuCanvas = selectedMenuCanvas;
     }
 
-    // Helper function that closes the object menu
     public void CloseObjectMenu()
     {
         if (currentInteractableWithMenu != null)
@@ -214,9 +222,22 @@ public class RaycastManager : MonoBehaviour
             currentInteractableWithMenu.Exit();
             currentInteractableWithMenu = null;
         }
+
+        if (activeObjectMenuCanvas != null)
+        {
+            activeObjectMenuCanvas.SetActive(false);
+            activeObjectMenuCanvas = null;
+        }
+
+        if (currentUISelection != null)
+        {
+            currentUISelection.GetComponent<Image>().color = Color.white;
+            currentUISelection = null;
+        }
+
+        character.GetComponent<CharacterMovement>().enabled = true;
     }
 
-    // Helper function to draw an action menu
     private bool HandleMenu(GameObject menuCanvas, string[] buttonTags, ref int buttonIndex, ref float lastNavTime, float navDelay)
     {
         if (menuCanvas.activeSelf)
@@ -229,7 +250,6 @@ public class RaycastManager : MonoBehaviour
                     if (currentUISelection != null)
                         currentUISelection.GetComponent<Image>().color = Color.white;
 
-                    // Find the next active button going up
                     int newIndex = buttonIndex - 1;
                     GameObject nextButton = null;
 
@@ -254,7 +274,6 @@ public class RaycastManager : MonoBehaviour
                     if (currentUISelection != null)
                         currentUISelection.GetComponent<Image>().color = Color.white;
 
-                    // Find the next active button going down
                     int newIndex = buttonIndex + 1;
                     GameObject nextButton = null;
 
@@ -276,7 +295,6 @@ public class RaycastManager : MonoBehaviour
                 }
             }
 
-            // Handle menu item selection
             if (Input.GetButtonDown(InputMappings.ButtonB) || Input.GetKeyDown(KeyCode.B))
             {
                 MenuFunctions menuFunctions = GetComponent<MenuFunctions>();
@@ -302,7 +320,6 @@ public class RaycastManager : MonoBehaviour
         return false;
     }
 
-    // Helper functions to enable and disable character movement and line renderer
     private void DisableCharacterMovementAndLineRenderer()
     {
         character.GetComponent<CharacterMovement>().enabled = false;
@@ -321,9 +338,14 @@ public class RaycastManager : MonoBehaviour
         }
     }
 
-    // Helper function to open the settings menu
     private void OpenSettingsMenu()
     {
+        var agentDialog = FindObjectOfType<AgentDialog>();
+        if (agentDialog != null && agentDialog.currentDialog != null)
+        {
+            return;
+        }
+
         if (settingsMenuCanvas.activeSelf)
         {
             settingsMenuCanvas.SetActive(false);
@@ -351,7 +373,6 @@ public class RaycastManager : MonoBehaviour
             }
             CloseObjectMenu();
 
-            // Highlight the first button
             currentButtonIndex = 0;
             GameObject firstButton = GameObject.FindGameObjectWithTag(settingsButtonTags[currentButtonIndex]);
             if (firstButton != null)

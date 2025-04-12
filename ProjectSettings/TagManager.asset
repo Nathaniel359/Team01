@@ -12,6 +12,11 @@ TagManager:
   - Character
   - AgentInput
   - InteractOnly
+  - ObjectMenu
+  - Resume
+  - RaycastLength
+  - Speed
+  - Accessibility
   layers:
   - Default
   - TransparentFX
