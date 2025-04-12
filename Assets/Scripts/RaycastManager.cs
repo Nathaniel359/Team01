@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using System.Collections;
 using System.Collections.Generic;
 
 public class RaycastManager : MonoBehaviour
@@ -21,6 +20,7 @@ public class RaycastManager : MonoBehaviour
     private InteractableObject currentInteractableWithMenu = null;
     private PointerEventData pointerEventData;
     private Selectable currentUISelection = null;
+    private Selectable lastHoveredUI = null;
     private float navigationDelay = 0.2f;
     private float lastNavigationTime = 0f;
     private GameObject activeObjectMenuCanvas = null;
@@ -44,9 +44,6 @@ public class RaycastManager : MonoBehaviour
         Vector3 endPosition = startPosition + transform.forward * rayDistance;
         RaycastHit hit;
 
-        /*
-         * Handle object menu raycast
-         */
         if (activeObjectMenuCanvas != null && activeObjectMenuCanvas.activeSelf && eventSystem != null)
         {
             GraphicRaycaster currentRaycaster = activeObjectMenuCanvas.GetComponent<GraphicRaycaster>();
@@ -74,12 +71,27 @@ public class RaycastManager : MonoBehaviour
 
                         if (selectable != null)
                         {
+                            // Unhighlight previous
+                            if (lastHoveredUI != null && lastHoveredUI != selectable)
+                            {
+                                Image lastImage = lastHoveredUI.GetComponent<Image>();
+                                if (lastImage != null)
+                                    lastImage.color = Color.white;
+                            }
+
                             currentUISelection = selectable;
-                            Button button = selectable as Button;
-                            button.GetComponent<Image>().color = Color.yellow;
+                            lastHoveredUI = selectable;
+
+                            // Highlight current
+                            Image image = selectable.GetComponent<Image>();
+                            if (image != null)
+                                image.color = Color.yellow;
 
                             if (Input.GetButtonDown(InputMappings.ButtonB) || Input.GetKeyDown(KeyCode.B))
                             {
+                                Button button = selectable.GetComponent<Button>();
+                                Slider slider = selectable.GetComponent<Slider>();
+
                                 if (button != null)
                                 {
                                     if (button.gameObject.name == "Grab")
@@ -89,7 +101,20 @@ public class RaycastManager : MonoBehaviour
                                             character.GetComponent<VRGrab>().TryGrabObject(currentInteractableWithMenu.gameObject);
                                         }
                                     }
-                                    CloseObjectMenu();
+                                    else if (button.gameObject.name == "Exit")
+                                    {
+                                        CloseObjectMenu();
+                                    }
+
+                                    CloseObjectMenu(); // Only close after button press
+                                }
+                                else if (slider != null)
+                                {
+                                    string sliderName = slider.gameObject.name;
+                                    if (sliderName == "Rotate")
+                                        Debug.Log("Rotate slider clicked.");
+                                    else if (sliderName == "Scale")
+                                        Debug.Log("Scale slider clicked.");
                                 }
                             }
 
@@ -100,7 +125,7 @@ public class RaycastManager : MonoBehaviour
             }
         }
 
-        if (currentUISelection != null && activeObjectMenuCanvas != null)
+        if (lastHoveredUI != null && activeObjectMenuCanvas != null)
         {
             GraphicRaycaster currentRaycaster = activeObjectMenuCanvas.GetComponent<GraphicRaycaster>();
             if (currentRaycaster != null)
@@ -122,7 +147,8 @@ public class RaycastManager : MonoBehaviour
                     bool isStillHovering = false;
                     foreach (var result in results)
                     {
-                        if (result.gameObject.GetComponentInParent<Selectable>().gameObject == currentUISelection.gameObject)
+                        Selectable hovered = result.gameObject.GetComponentInParent<Selectable>();
+                        if (hovered != null && hovered == lastHoveredUI)
                         {
                             isStillHovering = true;
                             break;
@@ -131,17 +157,18 @@ public class RaycastManager : MonoBehaviour
 
                     if (!isStillHovering)
                     {
-                        character.GetComponent<CharacterMovement>().enabled = true;
-                        currentUISelection.GetComponent<Image>().color = Color.white;
+                        Image image = lastHoveredUI.GetComponent<Image>();
+                        if (image != null)
+                            image.color = Color.white;
+
+                        lastHoveredUI = null;
                         currentUISelection = null;
+                        character.GetComponent<CharacterMovement>().enabled = true;
                     }
                 }
             }
         }
 
-        /*
-         * Handle line renderer
-         */
         if (Physics.Raycast(startPosition, transform.forward, out hit, rayDistance))
         {
             endPosition = hit.point;
@@ -153,9 +180,6 @@ public class RaycastManager : MonoBehaviour
             lineRenderer.SetPosition(1, endPosition);
         }
 
-        /*
-         * Handle interactable objects
-         */
         if (currentInteractable != null)
         {
             currentInteractable.GetComponent<Outline>().enabled = false;
@@ -179,9 +203,6 @@ public class RaycastManager : MonoBehaviour
             }
         }
 
-        /*
-         * Handle teleportation
-         */
         if ((Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y)) && hit.collider != null && hit.collider.gameObject == teleportationPlane && currentInteractableWithMenu == null)
         {
             Vector3 teleportPosition = hit.point + Vector3.up;
@@ -198,6 +219,7 @@ public class RaycastManager : MonoBehaviour
             selectedMenuCanvas.SetActive(false);
             currentInteractableWithMenu = null;
             currentUISelection = null;
+            lastHoveredUI = null;
             character.GetComponent<CharacterMovement>().enabled = true;
             activeObjectMenuCanvas = null;
             return;
@@ -231,8 +253,18 @@ public class RaycastManager : MonoBehaviour
 
         if (currentUISelection != null)
         {
-            currentUISelection.GetComponent<Image>().color = Color.white;
+            Image image = currentUISelection.GetComponent<Image>();
+            if (image != null)
+                image.color = Color.white;
             currentUISelection = null;
+        }
+
+        if (lastHoveredUI != null)
+        {
+            Image image = lastHoveredUI.GetComponent<Image>();
+            if (image != null)
+                image.color = Color.white;
+            lastHoveredUI = null;
         }
 
         character.GetComponent<CharacterMovement>().enabled = true;
@@ -248,7 +280,11 @@ public class RaycastManager : MonoBehaviour
                 if (vertComp > 0.5f && buttonIndex > 0)
                 {
                     if (currentUISelection != null)
-                        currentUISelection.GetComponent<Image>().color = Color.white;
+                    {
+                        Image image = currentUISelection.GetComponent<Image>();
+                        if (image != null)
+                            image.color = Color.white;
+                    }
 
                     int newIndex = buttonIndex - 1;
                     GameObject nextButton = null;
@@ -264,7 +300,9 @@ public class RaycastManager : MonoBehaviour
                     if (newIndex >= 0 && nextButton != null && nextButton.activeSelf)
                     {
                         buttonIndex = newIndex;
-                        nextButton.GetComponent<Image>().color = Color.yellow;
+                        Image image = nextButton.GetComponent<Image>();
+                        if (image != null)
+                            image.color = Color.yellow;
                         currentUISelection = nextButton.GetComponent<Selectable>();
                         lastNavTime = Time.time;
                     }
@@ -272,7 +310,11 @@ public class RaycastManager : MonoBehaviour
                 else if (vertComp < -0.5f && buttonIndex < buttonTags.Length - 1)
                 {
                     if (currentUISelection != null)
-                        currentUISelection.GetComponent<Image>().color = Color.white;
+                    {
+                        Image image = currentUISelection.GetComponent<Image>();
+                        if (image != null)
+                            image.color = Color.white;
+                    }
 
                     int newIndex = buttonIndex + 1;
                     GameObject nextButton = null;
@@ -288,7 +330,9 @@ public class RaycastManager : MonoBehaviour
                     if (newIndex < buttonTags.Length && nextButton != null && nextButton.activeSelf)
                     {
                         buttonIndex = newIndex;
-                        nextButton.GetComponent<Image>().color = Color.yellow;
+                        Image image = nextButton.GetComponent<Image>();
+                        if (image != null)
+                            image.color = Color.yellow;
                         currentUISelection = nextButton.GetComponent<Selectable>();
                         lastNavTime = Time.time;
                     }
@@ -356,7 +400,9 @@ public class RaycastManager : MonoBehaviour
             }
             if (currentUISelection != null)
             {
-                currentUISelection.GetComponent<Image>().color = Color.white;
+                Image image = currentUISelection.GetComponent<Image>();
+                if (image != null)
+                    image.color = Color.white;
                 currentUISelection = null;
             }
         }
@@ -377,7 +423,9 @@ public class RaycastManager : MonoBehaviour
             GameObject firstButton = GameObject.FindGameObjectWithTag(settingsButtonTags[currentButtonIndex]);
             if (firstButton != null)
             {
-                firstButton.GetComponent<Image>().color = Color.yellow;
+                Image image = firstButton.GetComponent<Image>();
+                if (image != null)
+                    image.color = Color.yellow;
                 currentUISelection = firstButton.GetComponent<Selectable>();
             }
         }
