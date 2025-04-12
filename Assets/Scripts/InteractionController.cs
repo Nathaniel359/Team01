@@ -27,36 +27,38 @@ public class InteractionController : MonoBehaviour
 
         if (Physics.Raycast(rayOrigin, mainCamera.transform.forward, out hit, rayLength))
         {
-            // Try to toggle a light
-            var light = hit.collider.GetComponent<LightToggle>();
-            if (light != null)
+            if (hit.collider.CompareTag("InteractOnly"))
             {
-                light.ToggleLight();
-                return;
-            }
+                // Try to toggle a light
+                var light = hit.collider.GetComponent<LightToggle>();
+                if (light != null)
+                {
+                    light.ToggleLight();
+                    return;
+                }
 
-            // Try to toggle a TV
-            var tv = hit.collider.GetComponent<TVToggle>();
-            if (tv != null)
-            {
-                tv.ToggleTV();
-                return;
-            }
+                // Try to toggle a TV
+                var tv = hit.collider.GetComponent<TVToggle>();
+                if (tv != null)
+                {
+                    tv.ToggleTV();
+                    return;
+                }
 
-            var door = hit.collider.GetComponent<DoorToggle>();
-            if (door != null)
-            {
-                door.ToggleDoor();
-                return;
-            }
+                var door = hit.collider.GetComponent<DoorToggle>();
+                if (door != null)
+                {
+                    door.ToggleDoor();
+                    return;
+                }
 
-            var sit = hit.collider.GetComponent<SitTarget>();
-            if (sit != null)
-            {
-                sit.ToggleSit();
-                return;
+                var sit = hit.collider.GetComponent<SitTarget>();
+                if (sit != null)
+                {
+                    sit.ToggleSit();
+                    return;
+                }
             }
-
         }
     }
 

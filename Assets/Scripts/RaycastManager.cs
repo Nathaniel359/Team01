@@ -149,6 +149,39 @@ public class RaycastManager : MonoBehaviour
                                 {
                                     CloseObjectMenu();
                                 }
+                                else if (button.gameObject.name == "Interact")
+                                {
+                                    if (currentInteractableWithMenu != null)
+                                    {
+                                        var light = currentInteractableWithMenu.GetComponent<LightToggle>();
+                                        if (light != null)
+                                        {
+                                            light.ToggleLight();
+                                            return;
+                                        }
+
+                                        var tv = currentInteractableWithMenu.GetComponent<TVToggle>();
+                                        if (tv != null)
+                                        {
+                                            tv.ToggleTV();
+                                            return;
+                                        }
+
+                                        var door = currentInteractableWithMenu.GetComponent<DoorToggle>();
+                                        if (door != null)
+                                        {
+                                            door.ToggleDoor();
+                                            return;
+                                        }
+
+                                        var sit = currentInteractableWithMenu.GetComponent<SitTarget>();
+                                        if (sit != null)
+                                        {
+                                            sit.ToggleSit();
+                                            return;
+                                        }
+                                    }
+                                }
 
                                 // Only close menu if button was clicked
                                 CloseObjectMenu();
@@ -273,6 +306,18 @@ public class RaycastManager : MonoBehaviour
         selectedMenuCanvas.SetActive(true);
 
         activeObjectMenuCanvas = selectedMenuCanvas;
+
+        // Show "Interact" button only if the object has one of the specified components
+        GameObject interactButton = selectedMenuCanvas.transform.Find("Interact").gameObject;
+        if (interactButton != null)
+        {
+            bool hasInteractableComponent = interactable.GetComponent<LightToggle>() != null ||
+                                            interactable.GetComponent<TVToggle>() != null ||
+                                            interactable.GetComponent<DoorToggle>() != null ||
+                                            interactable.GetComponent<SitTarget>() != null;
+
+            interactButton.SetActive(hasInteractableComponent);
+        }
     }
 
     public void CloseObjectMenu()
