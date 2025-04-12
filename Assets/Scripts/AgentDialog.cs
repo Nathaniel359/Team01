@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 
+// AI Agent dialog system
 public class AgentDialog : MonoBehaviour
 {
     public GameObject dialogBox;
@@ -23,11 +24,11 @@ public class AgentDialog : MonoBehaviour
     private float previousSpeed = -1f;
     private bool inputFieldActive = false;
     private TMP_InputField agentInputField;
-    private string chatHistory = ""; // added chat history field
+    private string chatHistory = "";
 
     void Update()
     {
-        if (isPlayerDetected && Input.GetKeyDown(KeyCode.E))
+        if (isPlayerDetected && (Input.GetKeyDown(KeyCode.M) || Input.GetButtonDown(InputMappings.ButtonHamburger)))
         {
             if (!hasSentRequest)
             {
@@ -142,7 +143,7 @@ public class AgentDialog : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.Y) || Input.GetButtonDown(InputMappings.ButtonY))
         {
             if (dialogButtons[buttonIndex].tag == "Button2")
             {

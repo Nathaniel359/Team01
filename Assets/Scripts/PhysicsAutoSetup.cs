@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Helper to automatically add colliders and rigidbodies to objects with specific tags
 public class PhysicsAutoSetup : MonoBehaviour
 {
     public string[] targetTags = { "Grab", "HeavyGrab" };
@@ -14,18 +15,17 @@ public class PhysicsAutoSetup : MonoBehaviour
                 // add Collider if missing
                 if (obj.GetComponent<Collider>() == null)
                 {
-                    // Try a MeshCollider if it has a MeshFilter, otherwise use BoxCollider
                     if (obj.GetComponent<MeshFilter>() != null)
                     {
                         MeshCollider meshCol = obj.AddComponent<MeshCollider>();
-                        meshCol.convex = true; // convex needed for Rigidbody interaction
+                        meshCol.convex = true;
                     }
                     else
                     {
                         obj.AddComponent<BoxCollider>();
                     }
 
-                    Debug.Log($"Added Collider to {obj.name}");
+                    // Debug.Log($"Added Collider to {obj.name}");
                 }
 
                 // add Rigidbody if missing
@@ -36,7 +36,7 @@ public class PhysicsAutoSetup : MonoBehaviour
                     rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
                     rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-                    Debug.Log($"Added Rigidbody to {obj.name}");
+                    // Debug.Log($"Added Rigidbody to {obj.name}");
                 }
             }
         }
