@@ -12,23 +12,25 @@ public class HoverOutline : MonoBehaviour
 
     public static bool raycastingEnabled = true;
 
+    private LineRenderer lineRenderer;
+
 
     private void Start()
     {
-
+        lineRenderer = transform.GetComponent<LineRenderer>();
     }
 
     void Update()
     {
 
-        Vector3 rayOrigin = playerCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 rayOrigin = lineRenderer.GetPosition(0);//playerCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
         if (Physics.Raycast(rayOrigin, playerCamera.transform.forward, out hit, rayLength))
         {
             GameObject hitObject = hit.collider.gameObject;
 
-            if (hitObject.CompareTag("Grab") || hitObject.CompareTag("HeavyGrab"))
+            if (hitObject.CompareTag("Grab") || hitObject.CompareTag("HeavyGrab") || hitObject.CompareTag("InteractOnly"))
             {
                 // Try to get an existing Outline component or add one if it doesn't exist
                 Outline outline = hitObject.GetComponent<Outline>();
@@ -39,8 +41,10 @@ public class HoverOutline : MonoBehaviour
                     //check if interactable:
                     var light = hit.collider.GetComponent<LightToggle>();
                     var tv = hit.collider.GetComponent<TVToggle>();
+                    var sit = hit.collider.GetComponent<SitTarget>();
+                    var door = hit.collider.GetComponent<DoorToggle>();
 
-                    if(light != null || tv != null)
+                    if(hitObject.CompareTag("InteractOnly") || light != null || tv != null || sit != null || door != null)
                     {
                         outline.OutlineColor = interactOutlineColor;
                     } else if (hitObject.CompareTag("Grab"))

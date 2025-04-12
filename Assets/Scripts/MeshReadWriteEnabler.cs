@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 
 public class MeshReadWriteEnabler : EditorWindow
@@ -27,3 +28,4 @@ public class MeshReadWriteEnabler : EditorWindow
         Debug.Log($"✅ Finished enabling Read/Write on {updatedCount} model(s).");
     }
 }
+#endif

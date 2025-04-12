@@ -11,6 +11,13 @@ public class VRGrab : MonoBehaviour
     private float grabDistance = 5f; // distance from the camera where the object stays
     private float smoothSpeed = 10f;
 
+    private LineRenderer lineRenderer;
+
+    private void Start()
+    {
+        lineRenderer = transform.GetComponent<LineRenderer>();
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetButtonDown("js10"))
@@ -36,10 +43,10 @@ public class VRGrab : MonoBehaviour
 
     void TryGrabObject()
     {
-        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // cast a ray from center of the view
+        Vector3 rayOrigin = lineRenderer.GetPosition(0);//mainCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, rayLength))
+        if (Physics.Raycast(rayOrigin, mainCamera.transform.forward, out hit, rayLength))
         {
             if (hit.collider.CompareTag("Grab") || hit.collider.CompareTag("HeavyGrab"))
             {
