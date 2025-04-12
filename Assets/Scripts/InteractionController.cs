@@ -14,7 +14,7 @@ public class InteractionController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             ToggleOnOff();
         }
