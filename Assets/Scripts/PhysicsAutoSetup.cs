@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Helper to automatically add colliders and rigidbodies to objects with specific tags
 public class PhysicsAutoSetup : MonoBehaviour
 {
     public string[] targetTags = { "Grab", "HeavyGrab" };

@@ -1304,7 +1304,6 @@ GameObject:
   - component: {fileID: 129993930}
   - component: {fileID: 129993933}
   - component: {fileID: 129993935}
-  - component: {fileID: 129993936}
   - component: {fileID: 129993938}
   - component: {fileID: 129993937}
   - component: {fileID: 129993939}
@@ -1405,39 +1404,6 @@ MonoBehaviour:
   lightOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   heavyOutlineColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
   interactOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
---- !u!114 &129993936
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 129993929}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5e2aad01e2bf6f4a9e0c3f469a672f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  floor:
-    m_Bits: 8
-  cameraTransform: {fileID: 1582404767}
-  settings: {fileID: 1794802760}
-  settingsDefaultButton: {fileID: 685615803}
-  colorAccess: 0
-  lineRenderer: {fileID: 0}
-  lastHitObject: {fileID: 0}
-  lastHoveredUI: {fileID: 0}
-  currentMenu: {fileID: 0}
-  currentObj: {fileID: 0}
-  isGrabbed: 0
-  rb: {fileID: 0}
-  inventory: []
-  raycastLength: []
-  rayLength: 10
-  rayLengthIndex: 0
-  speedArr: []
-  speedTypesArr: []
-  speed: 0
-  speedIndex: 0
 --- !u!120 &129993937
 LineRenderer:
   serializedVersion: 2
@@ -3540,7 +3506,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 129993936}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterRaycast, Assembly-CSharp
         m_MethodName: SetAccessibilityTheme
         m_Mode: 2
@@ -6162,7 +6128,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 129993936}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterRaycast, Assembly-CSharp
         m_MethodName: Resume
         m_Mode: 1
@@ -7102,7 +7068,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 129993936}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterRaycast, Assembly-CSharp
         m_MethodName: Speed
         m_Mode: 1
@@ -7270,7 +7236,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 129993936}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterRaycast, Assembly-CSharp
         m_MethodName: RaycastLength
         m_Mode: 1
@@ -8394,7 +8360,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3701382537063904497, guid: a21b031050e1345409177a5cf15ec3b4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.537
+      value: -4.52
       objectReference: {fileID: 0}
     - target: {fileID: 3701382537063904497, guid: a21b031050e1345409177a5cf15ec3b4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9353,7 +9319,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 129993936}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterRaycast, Assembly-CSharp
         m_MethodName: Exit
         m_Mode: 1
@@ -18208,7 +18174,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 129993936}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterRaycast, Assembly-CSharp
         m_MethodName: Grab
         m_Mode: 1
@@ -20269,7 +20235,7 @@ PrefabInstance:
     - target: {fileID: 1946894794753536, guid: 7bb30ccccaace44368d75c0e185720b0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 129993936}
+      objectReference: {fileID: 0}
     - target: {fileID: 452093739678798072, guid: 7bb30ccccaace44368d75c0e185720b0, type: 3}
       propertyPath: m_Name
       value: Grab
@@ -20393,7 +20359,7 @@ PrefabInstance:
     - target: {fileID: 5852631947647475385, guid: 7bb30ccccaace44368d75c0e185720b0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 129993936}
+      objectReference: {fileID: 0}
     - target: {fileID: 6401044104786981921, guid: 7bb30ccccaace44368d75c0e185720b0, type: 3}
       propertyPath: m_Material
       value: 
@@ -20437,7 +20403,7 @@ PrefabInstance:
     - target: {fileID: 443836883214133758, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 129993936}
+      objectReference: {fileID: 0}
     - target: {fileID: 532011966876309359, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontSize
       value: 22
@@ -20469,7 +20435,7 @@ PrefabInstance:
     - target: {fileID: 2175190737212116793, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 129993936}
+      objectReference: {fileID: 0}
     - target: {fileID: 2450801742708407459, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_Colors.m_HighlightedColor.b
       value: 1
@@ -20489,7 +20455,7 @@ PrefabInstance:
     - target: {fileID: 2450801742708407459, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 129993936}
+      objectReference: {fileID: 0}
     - target: {fileID: 2538047438274493025, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 7
@@ -20625,7 +20591,7 @@ PrefabInstance:
     - target: {fileID: 6419412780275855956, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 129993936}
+      objectReference: {fileID: 0}
     - target: {fileID: 6936661972296061542, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_LocalPosition.z
       value: -30

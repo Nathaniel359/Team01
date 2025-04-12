@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Handles grabbing and releasing objects
 public class VRGrab : MonoBehaviour
 {
     public Camera mainCamera;
