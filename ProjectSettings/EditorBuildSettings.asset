@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/UnrealEstate.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 0
+    path: Assets/ImportedAssets/MiLabCardboardExtension/Scenes/Map Bluetooth Key.unity
+    guid: 1eb807ac90408844da5fd17e087fea1e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: a05fc01f11fd61040b893a21f1d3b96a, type: 2}

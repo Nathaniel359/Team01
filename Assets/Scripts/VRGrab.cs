@@ -20,13 +20,9 @@ public class VRGrab : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetButtonDown("js10"))
+        if (Input.GetKeyDown(KeyCode.Y) || Input.GetButtonDown(InputMappings.ButtonY))
         {
-            if (grabbedObject == null)
-            {
-                TryGrabObject(); // try to grab an object
-            }
-            else
+            if (grabbedObject != null)
             {
                 ReleaseObject(); // release the grabbed object
             }

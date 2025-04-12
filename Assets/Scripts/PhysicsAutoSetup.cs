@@ -14,11 +14,10 @@ public class PhysicsAutoSetup : MonoBehaviour
                 // add Collider if missing
                 if (obj.GetComponent<Collider>() == null)
                 {
-                    // Try a MeshCollider if it has a MeshFilter, otherwise use BoxCollider
                     if (obj.GetComponent<MeshFilter>() != null)
                     {
                         MeshCollider meshCol = obj.AddComponent<MeshCollider>();
-                        meshCol.convex = true; // convex needed for Rigidbody interaction
+                        meshCol.convex = true;
                     }
                     else
                     {

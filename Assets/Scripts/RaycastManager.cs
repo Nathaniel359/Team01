@@ -35,11 +35,17 @@ public class RaycastManager : MonoBehaviour
 
     void Update()
     {
+        /*
+         * Handle settings menu toggle
+         */
         if (Input.GetButtonDown(InputMappings.ButtonMenu) || Input.GetKeyDown(KeyCode.O))
         {
             OpenSettingsMenu();
         }
 
+        /*
+         * Handle settings menu navigation
+         */
         if (HandleMenu(settingsMenuCanvas, settingsButtonTags, ref currentButtonIndex, ref lastNavigationTime, navigationDelay))
         {
             DisableCharacterMovementAndLineRenderer();
@@ -48,19 +54,24 @@ public class RaycastManager : MonoBehaviour
 
         EnableCharacterMovementAndLineRenderer();
 
+        /*
+         * Handle raycasting for interactable objects
+         */
         Vector3 startPosition = transform.position + Vector3.down * 0.1f;
         Vector3 endPosition = startPosition + transform.forward * rayDistance;
         RaycastHit hit;
 
-        // === Adjust selected slider value ===
+        /*
+         * Adjust selected slider value
+         */
         if (selectedSlider != null)
         {
             float horizontal = Input.GetAxis("Horizontal");
             if (Mathf.Abs(horizontal) > 0.1f)
             {
-                selectedSlider.value += horizontal * Time.deltaTime * sliderSpeed;
+                float adjustmentSpeed = selectedSlider.gameObject.name == "Scale" ? sliderSpeed * 0.5f : sliderSpeed;
+                selectedSlider.value += horizontal * Time.deltaTime * adjustmentSpeed;
 
-                // Apply changes
                 if (currentInteractableWithMenu != null)
                 {
                     if (selectedSlider.gameObject.name == "Rotate")
@@ -79,6 +90,9 @@ public class RaycastManager : MonoBehaviour
             }
         }
 
+        /*
+         * Handle object menu raycasting
+         */
         if (activeObjectMenuCanvas != null && activeObjectMenuCanvas.activeSelf && eventSystem != null)
         {
             GraphicRaycaster currentRaycaster = activeObjectMenuCanvas.GetComponent<GraphicRaycaster>();
@@ -119,12 +133,10 @@ public class RaycastManager : MonoBehaviour
                             Button button = selectable.GetComponent<Button>();
                             Slider slider = selectable.GetComponent<Slider>();
 
-                            // Highlighting stays the same
                             Image image = selectable.GetComponent<Image>();
                             if (image != null)
                                 image.color = Color.yellow;
 
-                            // If looking at a slider — auto-select it
                             if (slider != null)
                             {
                                 selectedSlider = slider;
@@ -135,8 +147,7 @@ public class RaycastManager : MonoBehaviour
                                     scaleLabel.text = $"Scale: {slider.value:F1}x";
                             }
 
-                            // If pressing B while looking at a button — trigger button logic
-                            if ((Input.GetButtonDown(InputMappings.ButtonB) || Input.GetKeyDown(KeyCode.B)) && button != null)
+                            if ((Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y)) && button != null)
                             {
                                 if (button.gameObject.name == "Grab")
                                 {
@@ -183,16 +194,17 @@ public class RaycastManager : MonoBehaviour
                                     }
                                 }
 
-                                // Only close menu if button was clicked
                                 CloseObjectMenu();
                             }
-
                         }
                     }
                 }
             }
         }
 
+        /*
+         * Handle UI hover state reset
+         */
         if (lastHoveredUI != null && activeObjectMenuCanvas != null)
         {
             GraphicRaycaster currentRaycaster = activeObjectMenuCanvas.GetComponent<GraphicRaycaster>();
@@ -238,6 +250,9 @@ public class RaycastManager : MonoBehaviour
             }
         }
 
+        /*
+         * Handle teleportation
+         */
         if (Physics.Raycast(startPosition, transform.forward, out hit, rayDistance))
         {
             endPosition = hit.point;
@@ -273,13 +288,16 @@ public class RaycastManager : MonoBehaviour
             }
         }
 
-        if ((Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y)) && hit.collider != null && hit.collider.gameObject == teleportationPlane && currentInteractableWithMenu == null)
+        if ((Input.GetButtonDown(InputMappings.ButtonA) || Input.GetKeyDown(KeyCode.P)) && hit.collider != null && hit.collider.gameObject == teleportationPlane && currentInteractableWithMenu == null)
         {
             Vector3 teleportPosition = hit.point + Vector3.up;
             character.transform.position = teleportPosition;
         }
     }
 
+    /*
+     * Helper function to open the object menu
+     */
     private void OpenObjectMenu(InteractableObject interactable)
     {
         GameObject selectedMenuCanvas = interactable.CompareTag("Grab") ? lightMenuCanvas : heavyMenuCanvas;
@@ -300,14 +318,16 @@ public class RaycastManager : MonoBehaviour
         lightMenuCanvas.SetActive(false);
 
         currentInteractableWithMenu = interactable;
-        selectedMenuCanvas.transform.position = interactable.transform.position + Vector3.up * 1f;
+
+        Vector3 directionToCharacter = (character.transform.position - interactable.transform.position).normalized;
+        selectedMenuCanvas.transform.position = interactable.transform.position + Vector3.up * 1f + directionToCharacter * 1f;
+
         selectedMenuCanvas.transform.LookAt(Camera.main.transform);
         selectedMenuCanvas.transform.Rotate(0, 180, 0);
         selectedMenuCanvas.SetActive(true);
 
         activeObjectMenuCanvas = selectedMenuCanvas;
 
-        // Show "Interact" button only if the object has one of the specified components
         GameObject interactButton = selectedMenuCanvas.transform.Find("Interact").gameObject;
         if (interactButton != null)
         {
@@ -320,6 +340,9 @@ public class RaycastManager : MonoBehaviour
         }
     }
 
+    /*
+     * Helper function to close the object menu
+     */
     public void CloseObjectMenu()
     {
         if (currentInteractableWithMenu != null)
@@ -354,12 +377,17 @@ public class RaycastManager : MonoBehaviour
         selectedSlider = null;
     }
 
+    /*
+     * Helper function to handle menu navigation
+     */
     private bool HandleMenu(GameObject menuCanvas, string[] buttonTags, ref int buttonIndex, ref float lastNavTime, float navDelay)
     {
-        // Your existing HandleMenu method can stay unchanged
         return false;
     }
 
+    /*
+     * Helper function to disable character movement and line renderer
+     */
     private void DisableCharacterMovementAndLineRenderer()
     {
         character.GetComponent<CharacterMovement>().enabled = false;
@@ -369,6 +397,9 @@ public class RaycastManager : MonoBehaviour
         }
     }
 
+    /*
+     * Helper function to enable character movement and line renderer
+     */
     private void EnableCharacterMovementAndLineRenderer()
     {
         character.GetComponent<CharacterMovement>().enabled = true;
@@ -378,9 +409,12 @@ public class RaycastManager : MonoBehaviour
         }
     }
 
+    /*
+     * Helper function to open the settings menu
+     */
     private void OpenSettingsMenu()
     {
-        var agentDialog = FindObjectOfType<AgentDialog>();
+        var agentDialog = FindFirstObjectByType<AgentDialog>();
         if (agentDialog != null && agentDialog.currentDialog != null)
         {
             return;
