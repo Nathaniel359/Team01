@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using TMPro;
 
+// Main class for raycasting and interaction
 public class RaycastManager : MonoBehaviour
 {
     public LineRenderer lineRenderer;

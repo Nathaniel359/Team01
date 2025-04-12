@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Handles highlighting of objects in the scene
 public class HoverOutline : MonoBehaviour
 {
     public Camera playerCamera;

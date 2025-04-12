@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Handles interaction with objects in the scene
 public class InteractionController : MonoBehaviour
 {
     public Camera mainCamera;
