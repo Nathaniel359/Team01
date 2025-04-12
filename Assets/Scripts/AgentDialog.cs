@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 
+// AI Agent dialog system
 public class AgentDialog : MonoBehaviour
 {
     public GameObject dialogBox;
