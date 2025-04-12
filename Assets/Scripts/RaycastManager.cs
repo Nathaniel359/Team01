@@ -352,7 +352,7 @@ public class RaycastManager : MonoBehaviour
 
         activeObjectMenuCanvas = selectedMenuCanvas;
 
-        GameObject interactButton = selectedMenuCanvas.transform.Find("Interact").gameObject;
+        GameObject interactButton = selectedMenuCanvas.transform.Find("Interact")?.gameObject;
         if (interactButton != null)
         {
             bool hasInteractableComponent = interactable.GetComponent<LightToggle>() != null ||
