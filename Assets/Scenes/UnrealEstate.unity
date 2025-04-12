@@ -1303,7 +1303,6 @@ GameObject:
   - component: {fileID: 129993931}
   - component: {fileID: 129993930}
   - component: {fileID: 129993933}
-  - component: {fileID: 129993934}
   - component: {fileID: 129993935}
   - component: {fileID: 129993936}
   - component: {fileID: 129993938}
@@ -1389,24 +1388,6 @@ MonoBehaviour:
   mainCamera: {fileID: 478856660}
   rayLength: 10
   grabbedObject: {fileID: 0}
---- !u!114 &129993934
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 129993929}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79a9707bd1583a143b4a58ffe6f82afe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerCamera: {fileID: 478856660}
-  player: {fileID: 129993932}
-  rayLength: Infinity
-  floorLayer:
-    serializedVersion: 2
-    m_Bits: 8
 --- !u!114 &129993935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1437,11 +1418,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floor:
-    serializedVersion: 2
     m_Bits: 8
   cameraTransform: {fileID: 1582404767}
   settings: {fileID: 1794802760}
   settingsDefaultButton: {fileID: 685615803}
+  colorAccess: 0
+  lineRenderer: {fileID: 0}
+  lastHitObject: {fileID: 0}
+  lastHoveredUI: {fileID: 0}
+  currentMenu: {fileID: 0}
+  currentObj: {fileID: 0}
+  isGrabbed: 0
+  rb: {fileID: 0}
+  inventory: []
+  raycastLength: []
+  rayLength: 10
+  rayLengthIndex: 0
+  speedArr: []
+  speedTypesArr: []
+  speed: 0
+  speedIndex: 0
 --- !u!120 &129993937
 LineRenderer:
   serializedVersion: 2
@@ -2873,7 +2869,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8babfff3b59c4b368b984ce48d0cd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGrabbed: 0
 --- !u!4 &247197409 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 897902f9547d7684dad9813eb17751bb, type: 3}
@@ -9911,7 +9906,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8babfff3b59c4b368b984ce48d0cd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGrabbed: 0
 --- !u!4 &1078298483 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1697057537660996819, guid: 70c062c3a7500e7479c9797b6190948e, type: 3}
@@ -10063,7 +10057,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8babfff3b59c4b368b984ce48d0cd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGrabbed: 0
 --- !u!1001 &1103077158
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12854,7 +12847,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8babfff3b59c4b368b984ce48d0cd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGrabbed: 0
 --- !u!1001 &1394620203
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17056,7 +17048,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8babfff3b59c4b368b984ce48d0cd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGrabbed: 0
 --- !u!1 &1839852611
 GameObject:
   m_ObjectHideFlags: 0
@@ -17507,7 +17498,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8babfff3b59c4b368b984ce48d0cd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGrabbed: 0
 --- !u!1 &1864902456
 GameObject:
   m_ObjectHideFlags: 0
