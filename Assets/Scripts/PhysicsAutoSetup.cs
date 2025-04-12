@@ -25,7 +25,7 @@ public class PhysicsAutoSetup : MonoBehaviour
                         obj.AddComponent<BoxCollider>();
                     }
 
-                    Debug.Log($"Added Collider to {obj.name}");
+                    // Debug.Log($"Added Collider to {obj.name}");
                 }
 
                 // add Rigidbody if missing
@@ -36,7 +36,7 @@ public class PhysicsAutoSetup : MonoBehaviour
                     rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
                     rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-                    Debug.Log($"Added Rigidbody to {obj.name}");
+                    // Debug.Log($"Added Rigidbody to {obj.name}");
                 }
             }
         }
