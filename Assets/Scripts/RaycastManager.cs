@@ -130,13 +130,45 @@ public class RaycastManager : MonoBehaviour
                         {
                             if (lastHoveredUI != null && lastHoveredUI != selectable)
                             {
-                                Image lastImage = lastHoveredUI.GetComponent<Image>();
-                                if (lastImage != null)
-                                    lastImage.color = Color.white;
+                                if (currentTheme == AccessibilityTheme.HighContrast)
+                                {
+                                    TextMeshProUGUI lastText = lastHoveredUI.GetComponentInChildren<TextMeshProUGUI>();
+                                    if (lastText != null) lastText.color = Color.white;
+                                }
+                                else
+                                {
+                                    Image lastImage = lastHoveredUI.GetComponent<Image>();
+                                    if (lastImage != null) lastImage.color = Color.white;
+                                }
+
+                                Slider slider2 = lastHoveredUI.GetComponent<Slider>();
+                                if (slider2 != null)
+                                {
+                                    Image sliderImage = slider2.GetComponent<Image>();
+                                    if (sliderImage != null)
+                                    {
+                                        sliderImage.color = currentTheme == AccessibilityTheme.HighContrast
+                                            ? Color.black
+                                            : currentTheme == AccessibilityTheme.ColorblindTritanopia
+                                                ? new Color(0.1f, 0.4f, 0.8f)
+                                                : Color.white;
+                                    }
+                                }
                             }
 
                             currentUISelection = selectable;
                             lastHoveredUI = selectable;
+
+                            if (currentTheme == AccessibilityTheme.HighContrast)
+                            {
+                                TextMeshProUGUI text = selectable.GetComponentInChildren<TextMeshProUGUI>();
+                                if (text != null) text.color = Color.yellow;
+                            }
+                            else
+                            {
+                                Image image2 = selectable.GetComponent<Image>();
+                                if (image2 != null) image2.color = Color.yellow;
+                            }
 
                             Button button = selectable.GetComponent<Button>();
                             Slider slider = selectable.GetComponent<Slider>();
@@ -264,6 +296,19 @@ public class RaycastManager : MonoBehaviour
                             if (image != null) image.color = Color.white;
                         }
 
+                        Slider slider = lastHoveredUI.GetComponent<Slider>();
+                        if (slider != null)
+                        {
+                            Image sliderImage = slider.GetComponent<Image>();
+                            if (sliderImage != null)
+                            {
+                                sliderImage.color = currentTheme == AccessibilityTheme.HighContrast
+                                    ? Color.black
+                                    : currentTheme == AccessibilityTheme.ColorblindTritanopia
+                                        ? new Color(0.1f, 0.4f, 0.8f)
+                                        : Color.white;
+                            }
+                        }
 
                         lastHoveredUI = null;
                         currentUISelection = null;
@@ -720,6 +765,23 @@ public class RaycastManager : MonoBehaviour
             if (tmp != null)
             {
                 tmp.color = textColor;
+            }
+        }
+
+        // Update sliders
+        Slider[] sliders = canvas.GetComponentsInChildren<Slider>(true);
+        foreach (Slider slider in sliders)
+        {
+            Image sliderImage = slider.GetComponent<Image>();
+            if (sliderImage != null)
+            {
+                sliderImage.color = colors.normalColor;
+            }
+
+            TextMeshProUGUI sliderLabel = slider.GetComponentInChildren<TextMeshProUGUI>();
+            if (sliderLabel != null)
+            {
+                sliderLabel.color = textColor;
             }
         }
     }
