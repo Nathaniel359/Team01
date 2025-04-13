@@ -7,7 +7,7 @@ public class LightToggle : MonoBehaviour
     public Light[] lights;
     private bool isOn = false;
     public float fadeDuration = 1f; // seconds
-    public float targetIntensity = 2f; // default light brightness
+    public float targetIntensity = 3f; // default light brightness
     public AudioSource audioSource;
     public AudioClip turnOnClip;
     public AudioClip turnOffClip;
@@ -34,6 +34,8 @@ public class LightToggle : MonoBehaviour
 
     private IEnumerator FadeLight(Light light, float target)
     {
+        Debug.Log($"Starting FadeLight: Target Intensity = {target}, Current Intensity = {light.intensity}");
+
         // If fading in from disabled, set intensity to 0 and enable
         if (target > 0 && !light.enabled)
         {
@@ -49,10 +51,12 @@ public class LightToggle : MonoBehaviour
             time += Time.deltaTime;
             float t = time / fadeDuration;
             light.intensity = Mathf.Lerp(start, target, t);
+            Debug.Log($"Fading: t = {t}, Intensity = {light.intensity}");
             yield return null;
         }
 
         light.intensity = target;
+        Debug.Log($"Fade complete: Final Intensity = {light.intensity}");
 
         // Disable light if fully faded out
         if (Mathf.Approximately(target, 0f))

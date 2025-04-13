@@ -3389,7 +3389,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &282763736
 Light:
   m_ObjectHideFlags: 0
@@ -4105,7 +4105,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &378640621
 Light:
   m_ObjectHideFlags: 0
@@ -4621,10 +4621,10 @@ MonoBehaviour:
   lights:
   - {fileID: 710879178}
   fadeDuration: 0.2
-  targetIntensity: 1
-  audioSource: {fileID: 0}
-  turnOnClip: {fileID: 0}
-  turnOffClip: {fileID: 0}
+  targetIntensity: 2
+  audioSource: {fileID: 1862928453}
+  turnOnClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
+  turnOffClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
 --- !u!64 &448680151
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -8870,7 +8870,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3701382537063904497, guid: a21b031050e1345409177a5cf15ec3b4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.52
+      value: -4.5
       objectReference: {fileID: 0}
     - target: {fileID: 3701382537063904497, guid: a21b031050e1345409177a5cf15ec3b4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10103,7 +10103,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1018309857
 Light:
   m_ObjectHideFlags: 0
@@ -10646,7 +10646,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1092655697
 Light:
   m_ObjectHideFlags: 0
@@ -11392,10 +11392,10 @@ MonoBehaviour:
   lights:
   - {fileID: 399546245}
   fadeDuration: 0.2
-  targetIntensity: 1
-  audioSource: {fileID: 0}
-  turnOnClip: {fileID: 0}
-  turnOffClip: {fileID: 0}
+  targetIntensity: 2
+  audioSource: {fileID: 1862928453}
+  turnOnClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
+  turnOffClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
 --- !u!64 &1156816673
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -13341,7 +13341,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1361690743
 Light:
   m_ObjectHideFlags: 0
@@ -13828,10 +13828,10 @@ MonoBehaviour:
   lights:
   - {fileID: 1627963065}
   fadeDuration: 0.2
-  targetIntensity: 1
-  audioSource: {fileID: 0}
-  turnOnClip: {fileID: 0}
-  turnOffClip: {fileID: 0}
+  targetIntensity: 2
+  audioSource: {fileID: 1862928453}
+  turnOnClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
+  turnOffClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
 --- !u!114 &1394620212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14914,7 +14914,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 853864459299421544, guid: 4fd059785718649499a344b0c22ecd22, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.985
+      value: -4.977
       objectReference: {fileID: 0}
     - target: {fileID: 853864459299421544, guid: 4fd059785718649499a344b0c22ecd22, type: 3}
       propertyPath: m_LocalRotation.w
@@ -16741,10 +16741,10 @@ MonoBehaviour:
   lights:
   - {fileID: 784185337}
   fadeDuration: 0.2
-  targetIntensity: 1
-  audioSource: {fileID: 0}
-  turnOnClip: {fileID: 0}
-  turnOffClip: {fileID: 0}
+  targetIntensity: 2
+  audioSource: {fileID: 1862928453}
+  turnOnClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
+  turnOffClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
 --- !u!64 &1682325929
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -18270,7 +18270,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1835270513
 Light:
   m_ObjectHideFlags: 0
@@ -18394,7 +18394,7 @@ Light:
   serializedVersion: 11
   m_Type: 2
   m_Color: {r: 0.9949599, g: 1, b: 0.41037738, a: 1}
-  m_Intensity: 1
+  m_Intensity: 4
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -18464,7 +18464,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1839917892
 Light:
   m_ObjectHideFlags: 0
@@ -18752,7 +18752,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1861373857
 Light:
   m_ObjectHideFlags: 0
@@ -18885,7 +18885,7 @@ MonoBehaviour:
   lights:
   - {fileID: 1839852613}
   fadeDuration: 0.2
-  targetIntensity: 1
+  targetIntensity: 2
   audioSource: {fileID: 1862928453}
   turnOnClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
   turnOffClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
@@ -21116,10 +21116,10 @@ MonoBehaviour:
   lights:
   - {fileID: 852344155}
   fadeDuration: 0.2
-  targetIntensity: 1
-  audioSource: {fileID: 0}
-  turnOnClip: {fileID: 0}
-  turnOffClip: {fileID: 0}
+  targetIntensity: 2
+  audioSource: {fileID: 1862928453}
+  turnOnClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
+  turnOffClip: {fileID: 8300000, guid: 65e8d7d25b82c284f952988d69dba49b, type: 3}
 --- !u!114 &2064899596
 MonoBehaviour:
   m_ObjectHideFlags: 0
