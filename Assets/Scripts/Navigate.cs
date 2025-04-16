@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+// Helper for agent navigation
 public class Navigate : MonoBehaviour
 {
     private NavMeshAgent agent;

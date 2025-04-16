@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+// Open/close door
 public class DoorToggle : MonoBehaviour
 {
     public Transform doorHinge; // Assign the pivot point of the door
@@ -41,7 +42,7 @@ public class DoorToggle : MonoBehaviour
                 audioSource.pitch = Random.Range(0.8f, 1.2f);
                 audioSource.PlayOneShot(clipToPlay);
             }
-                
+
         }
     }
 
