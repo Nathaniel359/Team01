@@ -1,12 +1,14 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 
+// Helper to enable Read/Write on assets
 public class MeshReadWriteEnabler : EditorWindow
 {
     [MenuItem("Tools/Enable Read/Write on All Models")]
     static void EnableReadWriteOnAllMeshes()
     {
-        string[] modelGUIDs = AssetDatabase.FindAssets("t:Model"); // Find all model assets
+        string[] modelGUIDs = AssetDatabase.FindAssets("t:Model");
 
         int updatedCount = 0;
 
@@ -24,6 +26,7 @@ public class MeshReadWriteEnabler : EditorWindow
             }
         }
 
-        Debug.Log($"✅ Finished enabling Read/Write on {updatedCount} model(s).");
+        Debug.Log($"Finished enabling Read/Write on {updatedCount} model(s).");
     }
 }
+#endif

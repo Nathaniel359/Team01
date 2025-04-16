@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Video;
 
+// Handles TV
 public class TVToggle : MonoBehaviour
 {
     public Renderer screenRenderer;
@@ -18,7 +19,7 @@ public class TVToggle : MonoBehaviour
 
     void UpdateTV()
     {
-        
+
         if (screenRenderer != null)
         {
             screenRenderer.material = isOn ? tvOnMaterial : tvOffMaterial;
