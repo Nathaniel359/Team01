@@ -41,6 +41,11 @@ public class RaycastManager : MonoBehaviour
     private bool isDropdownOpen = false;
     private AccessibilityTheme currentTheme = AccessibilityTheme.Default;
 
+    private void Start()
+    {
+        teleportationPlane = GameObject.FindGameObjectWithTag("Floor");
+    }
+
     void Update()
     {
         /*
