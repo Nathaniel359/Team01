@@ -454,7 +454,7 @@ public class AgentDialog : MonoBehaviour
     // When the player enters the trigger area, set the detected player and camera
     private void OnTriggerEnter(Collider other)
     {
-        if (other.name == "Character")
+        if (other.CompareTag("Character"))
         {
             isPlayerDetected = true;
             detectedPlayer = other.transform;
@@ -464,7 +464,7 @@ public class AgentDialog : MonoBehaviour
     // When the player exits the trigger area, reset the dialog and player state
     private void OnTriggerExit(Collider other)
     {
-        if (other.name == "Character")
+        if (other.CompareTag("Character"))
         {
             isPlayerDetected = false;
             detectedPlayer = null;
