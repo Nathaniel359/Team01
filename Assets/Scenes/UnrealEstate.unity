@@ -12055,7 +12055,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1166480248}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1750673678}
+        m_TargetAssemblyTypeName: QuickstartLobbyController, Assembly-CSharp
+        m_MethodName: QuickStart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1166480248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16999,6 +17011,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1610728026}
+  - component: {fileID: 1610728027}
   m_Layer: 0
   m_Name: QuickStartRoomController
   m_TagString: Untagged
@@ -17021,6 +17034,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1610728027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610728025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 059190c44cb5d5446a8b259b097bd8ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  multiplayerSceneIndex: 1
 --- !u!1001 &1612111175
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18212,6 +18238,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1750673677}
+  - component: {fileID: 1750673678}
   m_Layer: 0
   m_Name: QuickStartLobbyController
   m_TagString: Untagged
@@ -18234,6 +18261,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1750673678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1750673676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78428f2bd1a62fb47a06e24a21bbf085, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  quickStartButton: {fileID: 1166480245}
+  quickCancelButton: {fileID: 1752873900}
+  RoomSize: 4
 --- !u!1 &1752803383
 GameObject:
   m_ObjectHideFlags: 0
@@ -18413,7 +18455,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1752873903}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1750673678}
+        m_TargetAssemblyTypeName: QuickstartLobbyController, Assembly-CSharp
+        m_MethodName: QuickCancel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1752873903
 MonoBehaviour:
   m_ObjectHideFlags: 0
