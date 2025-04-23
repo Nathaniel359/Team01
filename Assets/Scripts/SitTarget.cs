@@ -18,9 +18,16 @@ public class SitTarget : MonoBehaviour
 
     void Start()
     {
-        movementScript = player.GetComponent<CharacterMovement>();
-        originalHeight = controller.height;
-        originalCenter = controller.center;
+        player = GameObject.FindGameObjectWithTag("Character");
+
+        if(player == null )
+        {
+            controller = player.GetComponent<CharacterController>();
+            movementScript = player.GetComponent<CharacterMovement>();
+            originalHeight = controller.height;
+            originalCenter = controller.center;
+        }
+        
     }
 
     public void ToggleSit()
