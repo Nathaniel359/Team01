@@ -17,6 +17,8 @@ TagManager:
   - RaycastLength
   - Speed
   - Accessibility
+  - Bullet
+  - Floor
   layers:
   - Default
   - TransparentFX
