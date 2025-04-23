@@ -44,6 +44,40 @@ public class RaycastManager : MonoBehaviour
     private void Start()
     {
         teleportationPlane = GameObject.FindGameObjectWithTag("Floor");
+        GameObject[] menus = GameObject.FindGameObjectsWithTag("ObjectMenu");
+
+        foreach (GameObject menu in menus)
+        {
+            if (menu.name == "Heavy Grab Canvas")
+            {
+                heavyMenuCanvas = menu;
+            }
+            else if (menu.name == "Light Grab Canvas")
+            {
+                lightMenuCanvas = menu;
+            }
+        }
+
+        List<Slider> menuSliders = new List<Slider>();
+
+        if (lightMenuCanvas != null)
+        {
+            menuSliders.AddRange(lightMenuCanvas.GetComponentsInChildren<Slider>());
+
+            foreach (Slider sld in menuSliders)
+            {
+                if (sld.gameObject.name == "Rotate")
+                {
+                    rotateLabel = sld.GetComponentInChildren<TextMeshProUGUI>();
+                }
+                else if (sld.gameObject.name == "Scale")
+                {
+                    scaleLabel = sld.GetComponentInChildren<TextMeshProUGUI>();
+                }
+            }
+        }
+
+        lightMenuCanvas.SetActive(false);
     }
 
     void Update()
