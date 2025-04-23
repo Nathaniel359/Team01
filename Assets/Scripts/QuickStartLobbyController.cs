@@ -9,7 +9,7 @@ public class QuickstartLobbyController : MonoBehaviourPunCallbacks
     [SerializeField] 
     private GameObject quickCancelButton;
     [SerializeField]
-    private int RoomSize = 4;
+    private int RoomSize;
 
     public override void OnConnectedToMaster()
     {
@@ -46,7 +46,7 @@ public class QuickstartLobbyController : MonoBehaviourPunCallbacks
         CreateRoom();
     }
 
-    public void QuickCanel() 
+    public void QuickCancel() 
     {
         quickCancelButton.SetActive(false);
         quickStartButton.SetActive(true);
