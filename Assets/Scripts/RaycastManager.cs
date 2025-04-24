@@ -614,6 +614,9 @@ public class RaycastManager : MonoBehaviour
                     case "Speed":
                         menuFunctions.SetSpeed();
                         break;
+                    case "Teleport":
+                        HandleTeleportDropdown();
+                        break;
                     case "Accessibility":
                         HandleAccessibilityDropdown();
                         break;
