@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Photon.Pun;
 
-public class CharacterMovement : MonoBehaviour
+[RequireComponent(typeof(CharacterController))]
+public class CharacterMovement : MonoBehaviourPunCallbacks
 {
-    CharacterController charCntrl;
+    private CharacterController charCntrl;
     [Tooltip("The speed at which the character will move.")]
     public float speed = 5f;
     [Tooltip("The camera representing where the character is looking.")]
@@ -21,10 +21,26 @@ public class CharacterMovement : MonoBehaviour
     void Start()
     {
         charCntrl = GetComponent<CharacterController>();
+
+        // Disable this script and the camera for remote players
+        if (!photonView.IsMine)
+        {
+            if (cameraObj != null && cameraObj.GetComponent<Camera>() != null)
+            {
+                cameraObj.GetComponent<Camera>().enabled = false;
+            }
+            enabled = false;
+        }
     }
 
     void Update()
     {
+        // Only allow movement for the local player
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         float horComp = Input.GetAxis("Horizontal");
         float vertComp = Input.GetAxis("Vertical");
 
@@ -50,11 +66,10 @@ public class CharacterMovement : MonoBehaviour
 
         charCntrl.SimpleMove(moveVect);
 
-        // Footstep Sound Logic
+        // Footstep Sound Logic (only for the local player)
         if (charCntrl.velocity.magnitude > 0.1f && charCntrl.isGrounded)
         {
-            // Adjust step interval based on movement speed
-            float adjustedInterval = Mathf.Clamp(3f / speed, 0.2f, 1f); // tweak this formula as needed
+            float adjustedInterval = Mathf.Clamp(3f / speed, 0.2f, 1f);
 
             stepTimer += Time.deltaTime;
             if (stepTimer >= adjustedInterval)
@@ -67,16 +82,14 @@ public class CharacterMovement : MonoBehaviour
         {
             stepTimer = 0f;
         }
-
     }
 
     void PlayFootstep()
     {
-        if (footstepSource != null && footstepClip != null)
+        if (footstepSource != null && footstepClip != null && photonView.IsMine)
         {
-            footstepSource.pitch = Random.Range(0.5f, 1.5f); // slight variation
+            footstepSource.pitch = Random.Range(0.5f, 1.5f);
             footstepSource.PlayOneShot(footstepClip);
         }
     }
-
 }
