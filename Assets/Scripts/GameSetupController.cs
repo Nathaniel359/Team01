@@ -4,14 +4,19 @@ using System.IO;
 
 public class GameSetupController : MonoBehaviour
 {
-    void Start()
+    private void Start()
     {
-        CreatePlayer(); //create networked player object for each player that loads into multiplayer
+        StartCoroutine(WaitAndSpawn());
     }
 
-    public void CreatePlayer()
+    private System.Collections.IEnumerator WaitAndSpawn()
     {
-        Debug.Log("Creating Player");
-        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PhotonPlayer"), new Vector3(1.0f, 1.31f, -34.13f), Quaternion.identity);
+        while (!PhotonNetwork.IsConnectedAndReady || PhotonNetwork.CurrentRoom == null)
+            yield return null;
+
+        Debug.Log("Joined Room. Spawning Player.");
+        Vector3 spawnPosition = new Vector3(1.0f, 1.31f, -34.13f);
+
+        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PhotonPlayer"), spawnPosition, Quaternion.identity);
     }
 }
