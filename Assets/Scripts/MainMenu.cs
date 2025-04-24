@@ -142,7 +142,8 @@ public class MainMenu : MonoBehaviour
         switch (elementName)
         {
             case "Start":
-                UnityEngine.SceneManagement.SceneManager.LoadScene("UnrealEstate");
+                selectedElement.GetComponent<Button>().onClick.Invoke();
+                //UnityEngine.SceneManagement.SceneManager.LoadScene("UnrealEstate");
                 break;
 
             case "Quit":
