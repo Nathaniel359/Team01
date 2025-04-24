@@ -19,6 +19,7 @@ TagManager:
   - Accessibility
   - Bullet
   - Floor
+  - Quality
   layers:
   - Default
   - TransparentFX
