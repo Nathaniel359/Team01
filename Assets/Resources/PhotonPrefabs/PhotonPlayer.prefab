@@ -3924,6 +3924,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: XRCardboardRig
       objectReference: {fileID: 0}
+    - target: {fileID: 7287137020585607022, guid: 186741bf17cbb0e4fa3ef06daa1f190f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7287137020585607023, guid: 186741bf17cbb0e4fa3ef06daa1f190f, type: 3}
       propertyPath: m_SubmitButton
       value: js5
@@ -4012,7 +4016,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 7963395854797555308}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
