@@ -9,16 +9,20 @@ public class QuickstartLobbyController : MonoBehaviourPunCallbacks
     [SerializeField] 
     private GameObject quickCancelButton;
     [SerializeField]
+    private GameObject loadingText;
+    [SerializeField]
     private int RoomSize;
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.AutomaticallySyncScene = true; 
+        PhotonNetwork.AutomaticallySyncScene = true;
+        loadingText.SetActive(false);
         quickStartButton.SetActive(true);
     }
 
     public void QuickStart()
     {
+        loadingText.SetActive(false);
         quickStartButton.SetActive(false);
         quickCancelButton.SetActive(true);
         PhotonNetwork.JoinRandomRoom();
@@ -48,6 +52,7 @@ public class QuickstartLobbyController : MonoBehaviourPunCallbacks
 
     public void QuickCancel() 
     {
+        loadingText.SetActive(false);
         quickCancelButton.SetActive(false);
         quickStartButton.SetActive(true);
         PhotonNetwork.LeaveRoom();
