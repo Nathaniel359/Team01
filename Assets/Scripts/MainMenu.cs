@@ -8,6 +8,7 @@ public class MainMenu : MonoBehaviour
 {
     public GameObject menuCanvas;
     public GameObject[] mainMenuUIElements; // All UI elements (buttons and dropdowns) in main menu panel
+    public GameObject cancelButton;
     private int currentIndex = 0;
     private float lastNavTime = 0f;
     private Color defaultTextColor = Color.black;
@@ -143,6 +144,15 @@ public class MainMenu : MonoBehaviour
         {
             case "Start":
                 selectedElement.GetComponent<Button>().onClick.Invoke();
+                mainMenuUIElements[currentIndex] = cancelButton;
+                cancelButton = selectedElement;
+                //UnityEngine.SceneManagement.SceneManager.LoadScene("UnrealEstate");
+                break;
+
+            case "QuickCancel":
+                selectedElement.GetComponent<Button>().onClick.Invoke();
+                mainMenuUIElements[currentIndex] = cancelButton;
+                cancelButton = selectedElement;
                 //UnityEngine.SceneManagement.SceneManager.LoadScene("UnrealEstate");
                 break;
 
