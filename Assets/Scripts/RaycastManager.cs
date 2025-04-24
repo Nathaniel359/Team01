@@ -26,7 +26,7 @@ public class RaycastManager : MonoBehaviour
     public TextMeshProUGUI scaleLabel;
     public Material overlayMaterial;
 
-    private string[] settingsButtonTags = { "Resume", "RaycastLength", "Speed", "Accessibility" };
+    private string[] settingsButtonTags = { "Resume", "RaycastLength", "Speed", "Teleport", "Accessibility" };
     private int currentButtonIndex;
     private InteractableObject currentInteractable = null;
     private InteractableObject currentInteractableWithMenu = null;
@@ -38,7 +38,8 @@ public class RaycastManager : MonoBehaviour
     public float sliderSpeed = 50f;
     private float navigationDelay = 0.2f;
     private float lastNavigationTime = 0f;
-    private bool isDropdownOpen = false;
+    private bool isTeleportDropdownOpen = false;
+    private bool isAccessibilityDropdownOpen = false;
     private AccessibilityTheme currentTheme = AccessibilityTheme.Default;
 
     private void Start()
@@ -493,7 +494,14 @@ public class RaycastManager : MonoBehaviour
         if (menuCanvas.activeSelf)
         {
             // Prevent navigation of settings buttons if the dropdown is open
-            if (isDropdownOpen)
+            if (isTeleportDropdownOpen)
+            {
+                HandleTeleportDropdown();
+                return true;
+            }    
+
+            // Prevent navigation of settings buttons if the dropdown is open
+            if (isAccessibilityDropdownOpen)
             {
                 HandleAccessibilityDropdown();
                 return true;
@@ -617,6 +625,88 @@ public class RaycastManager : MonoBehaviour
     }
 
     /*
+     * Helper function to handle the teleport dropdown
+     */
+    private void HandleTeleportDropdown()
+    {
+        TMP_Dropdown dropdown = GameObject.FindGameObjectWithTag("Teleport").GetComponent<TMP_Dropdown>();
+        if (dropdown != null)
+        {
+            if (!isTeleportDropdownOpen)
+            {
+                dropdown.Show();
+                StartCoroutine(ApplyDropdownOverlayMaterial());
+                isTeleportDropdownOpen = true;
+                return;
+            }
+
+            float vertComp = Input.GetAxis("Vertical");
+            if (Time.time - lastNavigationTime > navigationDelay)
+            {
+                if (vertComp > 0.5f && dropdown.value > 0)
+                {
+                    dropdown.value--;
+                    lastNavigationTime = Time.time;
+                }
+                else if (vertComp < -0.5f && dropdown.value < dropdown.options.Count - 1)
+                {
+                    dropdown.value++;
+                    lastNavigationTime = Time.time;
+                }
+            }
+
+            if (Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y))
+            {
+                dropdown.Hide();
+                Teleport(dropdown);
+                isTeleportDropdownOpen = false;
+            }
+        }
+    }
+
+    /*
+     * Helper function to apply the selected accessibility theme
+     */
+    private void Teleport(TMP_Dropdown dropdown)
+    {
+        switch(dropdown.value)
+        {
+            // Entrance
+            case 1:
+                character.transform.position = new Vector3(0, 0, -20);
+                break;
+            // Common Bathroom
+            case 2:
+                character.transform.position = new Vector3(-5, 0, 0);
+                break;
+            // Living Room
+            case 3:
+                character.transform.position = new Vector3(15, 0, 10);
+                break;
+            // Bedroom 1
+            case 4:
+                character.transform.position = new Vector3(-20, 0, -20);
+                break;
+            // Bedroom 2
+            case 5:
+                character.transform.position = new Vector3(-20, 0, -10);
+                break;
+            // Master Bedroom
+            case 6:
+                character.transform.position = new Vector3(-17.5f, 0, 10);
+                break;
+            // Office
+            case 7:
+                character.transform.position = new Vector3(-5, 0, 10);
+                break;
+            // Garage
+            case 8:
+                character.transform.position = new Vector3(15, 0, -15);
+                break;
+        }
+    }
+
+    /*
      * Helper function to handle the accessibility dropdown
      */
     private void HandleAccessibilityDropdown()
@@ -624,11 +714,11 @@ public class RaycastManager : MonoBehaviour
         TMP_Dropdown dropdown = GameObject.FindGameObjectWithTag("Accessibility").GetComponent<TMP_Dropdown>();
         if (dropdown != null)
         {
-            if (!isDropdownOpen)
+            if (!isAccessibilityDropdownOpen)
             {
                 dropdown.Show();
                 StartCoroutine(ApplyDropdownOverlayMaterial());
-                isDropdownOpen = true;
+                isAccessibilityDropdownOpen = true;
                 return;
             }
 
@@ -651,7 +741,7 @@ public class RaycastManager : MonoBehaviour
             {
                 dropdown.Hide();
                 ApplyAccessibilityTheme(dropdown);
-                isDropdownOpen = false;
+                isAccessibilityDropdownOpen = false;
             }
         }
     }
