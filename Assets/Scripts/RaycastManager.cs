@@ -801,6 +801,8 @@ public class RaycastManager : MonoBehaviour
         UpdateButtons(heavyMenuCanvas, colors, textColor, backgroundSprite);
         UpdateButtons(lightMenuCanvas, colors, textColor, backgroundSprite);
 
+        UpdateDropdowns(settingsMenuCanvas, colors, textColor, backgroundSprite);
+
         // Update dropdown colors
         if (dropdown != null)
         {
@@ -918,6 +920,62 @@ public class RaycastManager : MonoBehaviour
         }
     }
 
+    private void UpdateDropdowns(GameObject canvas, ColorBlock colors, Color textColor, Sprite background)
+    {
+        if (canvas == null) return;
+
+        // Apply theme to ALL TMP_Dropdowns inside menuCanvas
+        TMP_Dropdown[] dropdowns = canvas.GetComponentsInChildren<TMP_Dropdown>(true);
+        foreach (var dropdown in dropdowns)
+        {
+            TMP_Dropdown.DropdownEvent dropdownEvent = dropdown.onValueChanged;
+            dropdown.onValueChanged = null;
+
+            var dropdownColors = dropdown.colors;
+            dropdownColors.normalColor = colors.normalColor;
+            dropdownColors.highlightedColor = colors.highlightedColor;
+            dropdownColors.pressedColor = colors.pressedColor;
+            dropdownColors.selectedColor = colors.selectedColor;
+            dropdownColors.disabledColor = colors.disabledColor;
+            dropdown.colors = dropdownColors;
+
+            dropdown.onValueChanged = dropdownEvent;
+
+            // Update dropdown label text color
+            TextMeshProUGUI label = dropdown.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null)
+            {
+                if (currentTheme == AccessibilityTheme.HighContrast)
+                    label.color = Color.white;
+                else if (currentTheme == AccessibilityTheme.ColorblindTritanopia)
+                    label.color = Color.white;
+                else
+                    label.color = Color.black;
+            }
+        }
+
+        // Update the active dropdown list in the scene (if open)
+        Transform dropdownList = GameObject.Find("Dropdown List")?.transform;
+        if (dropdownList != null)
+        {
+            Image[] dropdownImages = dropdownList.GetComponentsInChildren<Image>(true);
+            foreach (var img in dropdownImages)
+            {
+                if (background != null)
+                {
+                    img.sprite = background;
+                    img.type = Image.Type.Sliced;
+                }
+                img.color = colors.normalColor;
+            }
+
+            TextMeshProUGUI[] texts = dropdownList.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach (var text in texts)
+            {
+                text.color = textColor;
+            }
+        }
+    }
 
 
     /*
