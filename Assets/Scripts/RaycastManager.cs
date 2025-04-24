@@ -675,36 +675,36 @@ public class RaycastManager : MonoBehaviour
         switch(dropdown.value)
         {
             // Entrance
-            case 1:
-                character.transform.position = new Vector3(0, 0, -20);
+            case 0:
+                character.transform.position = new Vector3(1, 2, -20);
                 break;
             // Common Bathroom
-            case 2:
-                character.transform.position = new Vector3(-5, 0, 0);
+            case 1:
+                character.transform.position = new Vector3(-5, 2, 0);
                 break;
             // Living Room
-            case 3:
-                character.transform.position = new Vector3(15, 0, 10);
+            case 2:
+                character.transform.position = new Vector3(15, 2, 10);
                 break;
             // Bedroom 1
-            case 4:
-                character.transform.position = new Vector3(-20, 0, -20);
+            case 3:
+                character.transform.position = new Vector3(-20, 2, -20);
                 break;
             // Bedroom 2
-            case 5:
-                character.transform.position = new Vector3(-20, 0, -10);
+            case 4:
+                character.transform.position = new Vector3(-20, 2, -10);
                 break;
             // Master Bedroom
-            case 6:
-                character.transform.position = new Vector3(-17.5f, 0, 10);
+            case 5:
+                character.transform.position = new Vector3(-17.5f, 2, 12);
                 break;
             // Office
-            case 7:
-                character.transform.position = new Vector3(-5, 0, 10);
+            case 6:
+                character.transform.position = new Vector3(-5, 2, 10);
                 break;
             // Garage
-            case 8:
-                character.transform.position = new Vector3(15, 0, -15);
+            case 7:
+                character.transform.position = new Vector3(15, 2, -15);
                 break;
         }
     }
