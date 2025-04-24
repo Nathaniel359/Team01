@@ -229,7 +229,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7909254565685634124, guid: 3213cc2c77169584fb06bb98f51bb06c, type: 3}
       propertyPath: m_TagString
-      value: Grab
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: -5059995287080565505, guid: 3213cc2c77169584fb06bb98f51bb06c, type: 3}
       propertyPath: m_TagString
@@ -9221,7 +9221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5871847615224283292, guid: 7b8d9613223ef1f448bbe8fc90d8a85d, type: 3}
       propertyPath: m_TagString
-      value: Grab
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 8564915951976741474, guid: 7b8d9613223ef1f448bbe8fc90d8a85d, type: 3}
       propertyPath: m_LocalPosition.x
