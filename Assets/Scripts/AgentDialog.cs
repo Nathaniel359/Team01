@@ -326,7 +326,7 @@ public class AgentDialog : MonoBehaviour
                 foreach (char c in fullText)
                 {
                     textComponent.text += c;
-                    yield return new WaitForSeconds(0.03f);
+                    yield return new WaitForSeconds(0.01f);
                 }
             }
         }
@@ -408,9 +408,9 @@ public class AgentDialog : MonoBehaviour
                 img.color = (i == index) ? Color.yellow : Color.white;
         }
 
-        currentUISelection = dialogButtons[index].GetComponent<Selectable>();
-        if (currentUISelection != null)
-            EventSystem.current.SetSelectedGameObject(currentUISelection.gameObject);
+        // currentUISelection = dialogButtons[index].GetComponent<Selectable>();
+        // if (currentUISelection != null)
+        //     EventSystem.current.SetSelectedGameObject(currentUISelection.gameObject);
     }
 
     // Positions the dialog box in front of the player

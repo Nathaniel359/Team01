@@ -3257,6 +3257,7 @@ GameObject:
   - component: {fileID: 305172383}
   - component: {fileID: 305172382}
   - component: {fileID: 305172386}
+  - component: {fileID: 305172387}
   m_Layer: 3
   m_Name: Floor
   m_TagString: Floor
@@ -3386,6 +3387,14 @@ MonoBehaviour:
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 7d7c38d9c7804fe4f9eb3a220ffd1e38, type: 2}
   m_BuildHeightMesh: 0
+--- !u!81 &305172387
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305172381}
+  m_Enabled: 1
 --- !u!1 &307439709
 GameObject:
   m_ObjectHideFlags: 0
