@@ -16,6 +16,7 @@ public class AgentDialog : MonoBehaviour
     private Camera playerCamera;
     private bool hasSentRequest = false;
 
+    [SerializeField] private GameObject SpeechUI;
     private int buttonIndex = 0;
     private float lastNavTime = 0f;
     private float navDelay = 0.5f;
@@ -30,6 +31,7 @@ public class AgentDialog : MonoBehaviour
     {
         if (isPlayerDetected && (Input.GetKeyDown(KeyCode.M) || Input.GetButtonDown(InputMappings.ButtonHamburger)))
         {
+            SpeechUI.SetActive(true);
             if (!hasSentRequest)
             {
                 ShowThinkingDialog();
@@ -449,6 +451,7 @@ public class AgentDialog : MonoBehaviour
 
         hasSentRequest = false;
         inputFieldActive = false;
+        SpeechUI.SetActive(false); 
     }
 
     // When the player enters the trigger area, set the detected player and camera
