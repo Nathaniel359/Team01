@@ -76,10 +76,6 @@ crashlytics-build.properties
 
 Environment.cs
 Assets/Scripts/Environment.cs
-<<<<<<< HEAD
 Assets/Scripts/Environment.cs.meta
 Assets/Resources/HuggingFaceAPIConfig.asset 
-Assets/Resources/HuggingFaceAPIConfig.asset 
-=======
-Assets/Scripts/Environment.cs.meta
->>>>>>> 6dd9b7399df4dfde1af6666db356c753dd292db7
+
