@@ -1332,7 +1332,7 @@ MonoBehaviour:
   frameDuration: 20000
   bitrate: 30000
   sourceType: 0
-  microphoneType: 0
+  microphoneType: 1
   audioClip: {fileID: 0}
   loopAudioClip: 1
   recordingEnabled: 1
@@ -9713,7 +9713,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a790afbb28162c469a2828fba80fbac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 5636677986179564121, guid: 1d366611de00fa94c96b349ff16cbad6, type: 3}
 --- !u!4 &1085621505
 Transform:
   m_ObjectHideFlags: 0
@@ -19505,7 +19504,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86f533fd9917dd4da8601e9eb542c96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LogLevel: 2
+  LogLevel: 3
 --- !u!4 &2008427305
 Transform:
   m_ObjectHideFlags: 0
