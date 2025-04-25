@@ -1,48 +1,50 @@
 using System.IO;
+using System;
 using HuggingFace.API;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SpeechToText : MonoBehaviour
 {
-    [SerializeField] private Button startButton;
-    [SerializeField] private Button stopButton;
-    [SerializeField] private TextMeshProUGUI text;
-
     private AudioClip clip;
     private byte[] bytes;
     private bool recording;
+    private Action<string> onResultCallback;
 
     private void Start()
     {
         Debug.Log("SpeechToText Start called");
-        startButton.onClick.AddListener(StartRecording);
-        stopButton.onClick.AddListener(StopRecording);
-        stopButton.interactable = false;
-        Debug.Log("startButton interactable: " + startButton.interactable);
     }
 
     private void Update()
     {
         if (recording && Microphone.GetPosition(null) >= clip.samples)
         {
-            StopRecording();
+            StopRecordingInternal();
         }
+    }
+
+    public void StartRecording(Action<string> callback)
+    {
+        onResultCallback = callback;
+        StartRecording();
     }
 
     private void StartRecording()
     {
         Debug.Log("Starting Record");
-        text.color = Color.black;
-        text.text = "Recording...";
-        startButton.interactable = false;
-        stopButton.interactable = true;
         clip = Microphone.Start(null, false, 10, 44100);
         recording = true;
     }
 
-    private void StopRecording()
+    public void StopRecording()
+    {
+        if (recording)
+        {
+            StopRecordingInternal();
+        }
+    }
+
+    private void StopRecordingInternal()
     {
         var position = Microphone.GetPosition(null);
         Microphone.End(null);
@@ -55,17 +57,22 @@ public class SpeechToText : MonoBehaviour
 
     private void SendRecording()
     {
-        text.color = Color.yellow;
-        text.text = "Sending...";
-        stopButton.interactable = false;
-        HuggingFaceAPI.AutomaticSpeechRecognition(bytes, response => {
-            text.color = Color.black;
-            text.text = response;
-            startButton.interactable = true;
-        }, error => {
-            text.color = Color.red;
-            text.text = error;
-            startButton.interactable = true;
+        HuggingFaceAPI.AutomaticSpeechRecognition(bytes, response =>
+        {
+            if (onResultCallback != null)
+            {
+                var cb = onResultCallback;
+                onResultCallback = null;
+                cb(response);
+            }
+        }, error =>
+        {
+            if (onResultCallback != null)
+            {
+                var cb = onResultCallback;
+                onResultCallback = null;
+                cb("");
+            }
         });
     }
 
