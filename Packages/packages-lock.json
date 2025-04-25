@@ -10,7 +10,6 @@
       },
       "hash": "3849789abdda4140219eec4d524a02e15e1548fe"
     },
-<<<<<<< HEAD
     "com.huggingface.api": {
       "version": "https://github.com/huggingface/unity-api.git",
       "depth": 0,
@@ -21,8 +20,6 @@
       },
       "hash": "8d0231780ead66aba3ad5ad3373158d5de0bc533"
     },
-=======
->>>>>>> 6dd9b7399df4dfde1af6666db356c753dd292db7
     "com.unity.ai.navigation": {
       "version": "2.0.6",
       "depth": 0,
