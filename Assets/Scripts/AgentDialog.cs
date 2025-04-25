@@ -43,6 +43,7 @@ public class AgentDialog : MonoBehaviour
         {
             PositionDialog();
             HandleDialogNavigation();
+            currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject?.SetActive(true);
         }
     }
 
@@ -191,7 +192,7 @@ public class AgentDialog : MonoBehaviour
         isRecording = false;
         if (speechToTextTMP != null)
         {
-            speechToTextTMP.text = result;
+            speechToTextTMP.text = "User: " + result;
         }
         if (!string.IsNullOrEmpty(result))
         {
