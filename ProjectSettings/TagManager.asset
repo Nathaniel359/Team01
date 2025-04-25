@@ -21,6 +21,7 @@ TagManager:
   - Floor
   - Teleport
   - Quality
+  - SpeechToText
   layers:
   - Default
   - TransparentFX

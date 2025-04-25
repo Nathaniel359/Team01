@@ -11,11 +11,12 @@ public class AgentDialog : MonoBehaviour
     public GameObject dialogBox;
     public GameObject dialogTemplate;
     public GameObject currentDialog;
+    public TextMeshProUGUI speechToTextTMP;
+
     private bool isPlayerDetected = false;
     private Transform detectedPlayer;
     private Camera playerCamera;
     private bool hasSentRequest = false;
-
     private int buttonIndex = 0;
     private float lastNavTime = 0f;
     private float navDelay = 0.5f;
@@ -23,7 +24,6 @@ public class AgentDialog : MonoBehaviour
     private Selectable currentUISelection;
     private float previousSpeed = -1f;
     private string chatHistory = "";
-
     [SerializeField] private SpeechToText speechToText;
     private bool isRecording = false;
 
@@ -164,6 +164,10 @@ public class AgentDialog : MonoBehaviour
         {
             isRecording = true;
             SetButton2Text("Stop");
+            if (speechToTextTMP != null)
+            {
+                UpdateSpeechToText("Listening... (Y to stop recording)");
+            }
             speechToText.StartRecording(OnSpeechResult);
         }
     }
@@ -176,6 +180,7 @@ public class AgentDialog : MonoBehaviour
             speechToText.StopRecording();
             SetButton2Text("Ask Agent");
             isRecording = false;
+            // Do not change TMP text here; OnSpeechResult will update it
         }
     }
 
@@ -184,6 +189,10 @@ public class AgentDialog : MonoBehaviour
     {
         SetButton2Text("Ask Agent");
         isRecording = false;
+        if (speechToTextTMP != null)
+        {
+            speechToTextTMP.text = result;
+        }
         if (!string.IsNullOrEmpty(result))
         {
             ShowThinkingDialog();
@@ -196,10 +205,19 @@ public class AgentDialog : MonoBehaviour
     {
         if (dialogButtons != null && dialogButtons.Length > 0 && dialogButtons[0] != null)
         {
-            Debug.Log("Setting Button2 text to: " + text);
             var btnText = dialogButtons[0].GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
                 btnText.text = text;
+        }
+    }
+
+    private void UpdateSpeechToText(string text)
+    {
+        if (currentDialog != null)
+        {
+            var tmp = currentDialog.transform.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>();
+            if (tmp != null)
+                tmp.text = text;
         }
     }
 
@@ -454,6 +472,8 @@ public class AgentDialog : MonoBehaviour
         hasSentRequest = false;
         isRecording = false;
         SetButton2Text("Ask Agent...");
+        if (speechToTextTMP != null)
+            speechToTextTMP.gameObject.SetActive(false);
     }
 
     // When the player enters the trigger area, set the detected player and camera
