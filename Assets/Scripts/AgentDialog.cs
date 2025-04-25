@@ -11,7 +11,6 @@ public class AgentDialog : MonoBehaviour
     public GameObject dialogBox;
     public GameObject dialogTemplate;
     public GameObject currentDialog;
-    public TextMeshProUGUI speechToTextTMP;
 
     private bool isPlayerDetected = false;
     private Transform detectedPlayer;
@@ -45,7 +44,6 @@ public class AgentDialog : MonoBehaviour
         {
             PositionDialog();
             HandleDialogNavigation();
-            currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject?.SetActive(true);
         }
     }
 
@@ -89,6 +87,7 @@ public class AgentDialog : MonoBehaviour
 
         dialogButtons = new GameObject[]
         {
+            currentDialog.transform.Find("Button1")?.gameObject,
             currentDialog.transform.Find("Button2")?.gameObject,
             currentDialog.transform.Find("Button3")?.gameObject
         };
@@ -139,9 +138,20 @@ public class AgentDialog : MonoBehaviour
             }
         }
 
+        var speechTMP = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject;
+        Debug.Log(speechTMP);
+        if (speechTMP != null)
+        {
+            speechTMP.SetActive(dialogButtons[buttonIndex]?.tag == "Button2");
+        }
+
         if (Input.GetKeyDown(KeyCode.Y) || Input.GetButtonDown(InputMappings.ButtonY))
         {
-            if (dialogButtons[buttonIndex].tag == "Button2")
+            if (dialogButtons[buttonIndex].tag == "Button1")
+            {
+                Debug.Log("Button1 selected and Y pressed.");
+            }
+            else if (dialogButtons[buttonIndex].tag == "Button2")
             {
                 // Voice input logic
                 if (!isRecording)
@@ -167,9 +177,10 @@ public class AgentDialog : MonoBehaviour
         {
             isRecording = true;
             SetButton2Text("Stop");
-            if (speechToTextTMP != null)
+            var speechTMP = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>();
+            if (speechTMP != null)
             {
-                UpdateSpeechToText("Listening... (Y to stop recording)");
+                speechTMP.text = "Listening... (Y to stop recording)";
             }
             speechToText.StartRecording(OnSpeechResult);
         }
@@ -192,23 +203,31 @@ public class AgentDialog : MonoBehaviour
     {
         SetButton2Text("Ask Agent");
         isRecording = false;
-        if (speechToTextTMP != null)
+        var speechTMP = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>();
+        if (speechTMP != null)
         {
-            speechToTextTMP.text = "User: " + result;
+            speechTMP.text = "User: " + result;
         }
         if (!string.IsNullOrEmpty(result))
         {
-            ShowThinkingDialog();
-            StartCoroutine(SendToGemini(result));
+            StartCoroutine(DelayedShowThinkingDialog(result));
         }
+    }
+
+    // Coroutine to delay showing the "Thinking..." dialog
+    private IEnumerator DelayedShowThinkingDialog(string question)
+    {
+        yield return new WaitForSeconds(2f); // Delay for 2 seconds
+        ShowThinkingDialog();
+        StartCoroutine(SendToGemini(question));
     }
 
     // Utility to set Button2 text
     private void SetButton2Text(string text)
     {
-        if (dialogButtons != null && dialogButtons.Length > 0 && dialogButtons[0] != null)
+        if (dialogButtons != null && dialogButtons.Length > 1 && dialogButtons[1] != null)
         {
-            var btnText = dialogButtons[0].GetComponentInChildren<TextMeshProUGUI>();
+            var btnText = dialogButtons[1].GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
                 btnText.text = text;
         }
@@ -216,12 +235,9 @@ public class AgentDialog : MonoBehaviour
 
     private void UpdateSpeechToText(string text)
     {
-        if (currentDialog != null)
-        {
-            var tmp = currentDialog.transform.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>();
-            if (tmp != null)
-                tmp.text = text;
-        }
+        var tmp = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>();
+        if (tmp != null)
+            tmp.text = text;
     }
 
     // Sends the user's question to the Gemini API and processes the response
@@ -475,8 +491,9 @@ public class AgentDialog : MonoBehaviour
         hasSentRequest = false;
         isRecording = false;
         SetButton2Text("Ask Agent...");
-        if (speechToTextTMP != null)
-            speechToTextTMP.gameObject.SetActive(false);
+        var speechTMP = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject;
+        if (speechTMP != null)
+            speechTMP.SetActive(false);
     }
 
     // When the player enters the trigger area, set the detected player and camera
