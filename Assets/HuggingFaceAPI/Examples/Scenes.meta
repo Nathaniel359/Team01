@@ -1,8 +1,11 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/HuggingFaceAPI/Examples/Scenes.meta
 guid: 4adb7bdac7fed8744bdef144bb06ea88
+========
+guid: c2e133c321fc868409cc3a12da290c3a
+>>>>>>>> 6dd9b7399df4dfde1af6666db356c753dd292db7:Assets/Photon/PhotonUnityNetworking/Demos/PunBasics-Tutorial/Scenes.meta
 folderAsset: yes
 DefaultImporter:
-  externalObjects: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 

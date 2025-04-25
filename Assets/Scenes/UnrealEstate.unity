@@ -4755,6 +4755,7 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1971933586}
   m_SourcePrefab: {fileID: 100100000, guid: 29eb9cdec523f4944b46fcfae81dc9c8, type: 3}
+<<<<<<< HEAD
 --- !u!1 &521302743
 GameObject:
   m_ObjectHideFlags: 0
@@ -5012,6 +5013,8 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 34.4}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
+=======
+>>>>>>> 6dd9b7399df4dfde1af6666db356c753dd292db7
 --- !u!1 &536095277 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8198272116638378021, guid: 6ab6af969cb643e44b67269676f36669, type: 3}
@@ -17794,6 +17797,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8babfff3b59c4b368b984ce48d0cd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
 --- !u!1 &1819321067
 GameObject:
   m_ObjectHideFlags: 0
@@ -17914,6 +17918,8 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+=======
+>>>>>>> 6dd9b7399df4dfde1af6666db356c753dd292db7
 --- !u!1 &1821279758 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -6705247223594696024, guid: b2627dd9b6f483049bcaf167c074965f, type: 3}
@@ -22050,5 +22056,8 @@ SceneRoots:
   - {fileID: 855438114}
   - {fileID: 1424005449}
   - {fileID: 2008427305}
+<<<<<<< HEAD
   - {fileID: 1819321072}
   - {fileID: 229851642}
+=======
+>>>>>>> 6dd9b7399df4dfde1af6666db356c753dd292db7
