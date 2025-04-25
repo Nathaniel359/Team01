@@ -11,20 +11,21 @@ public class AgentDialog : MonoBehaviour
     public GameObject dialogBox;
     public GameObject dialogTemplate;
     public GameObject currentDialog;
+    public TextMeshProUGUI speechToTextTMP;
+
     private bool isPlayerDetected = false;
     private Transform detectedPlayer;
     private Camera playerCamera;
     private bool hasSentRequest = false;
-
     private int buttonIndex = 0;
     private float lastNavTime = 0f;
     private float navDelay = 0.5f;
     private GameObject[] dialogButtons;
     private Selectable currentUISelection;
     private float previousSpeed = -1f;
-    private bool inputFieldActive = false;
-    private TMP_InputField agentInputField;
     private string chatHistory = "";
+    [SerializeField] private SpeechToText speechToText;
+    private bool isRecording = false;
 
     void Update()
     {
@@ -41,8 +42,8 @@ public class AgentDialog : MonoBehaviour
         if (currentDialog != null && playerCamera != null)
         {
             PositionDialog();
-            if (!inputFieldActive)
-                HandleDialogNavigation();
+            HandleDialogNavigation();
+            currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject?.SetActive(true);
         }
     }
 
@@ -90,13 +91,10 @@ public class AgentDialog : MonoBehaviour
             currentDialog.transform.Find("Button3")?.gameObject
         };
 
-        var inputGO = currentDialog.transform.Find("InputField (TMP)");
-        if (inputGO != null)
-        {
-            agentInputField = inputGO.GetComponent<TMP_InputField>();
-            if (agentInputField != null)
-                agentInputField.gameObject.SetActive(false);
-        }
+        buttonIndex = 0;
+        HighlightButton(buttonIndex);
+
+        isRecording = false;
 
         // Disable player movement
         GameObject character = GameObject.FindGameObjectWithTag("Character");
@@ -113,10 +111,6 @@ public class AgentDialog : MonoBehaviour
                 movement.speed = 0;
             }
         }
-
-
-        buttonIndex = 0;
-        HighlightButton(buttonIndex);
     }
 
     // Handles navigation through the dialog buttons
@@ -147,7 +141,15 @@ public class AgentDialog : MonoBehaviour
         {
             if (dialogButtons[buttonIndex].tag == "Button2")
             {
-                ActivateInputField();
+                // Voice input logic
+                if (!isRecording)
+                {
+                    StartSpeechInput();
+                }
+                else
+                {
+                    StopSpeechInput();
+                }
             }
             else if (dialogButtons[buttonIndex].tag == "Button3")
             {
@@ -156,41 +158,68 @@ public class AgentDialog : MonoBehaviour
         }
     }
 
-    // Activates the input field for user input
-    private void ActivateInputField()
+    // Start speech-to-text recording
+    private void StartSpeechInput()
     {
-        if (agentInputField != null)
+        if (speechToText != null)
         {
-            inputFieldActive = true;
-            agentInputField.gameObject.SetActive(true);
-            agentInputField.ActivateInputField();
-            agentInputField.Select();
-            agentInputField.caretPosition = 0;
-            StartCoroutine(WaitForInput(agentInputField));
+            isRecording = true;
+            SetButton2Text("Stop");
+            if (speechToTextTMP != null)
+            {
+                UpdateSpeechToText("Listening... (Y to stop recording)");
+            }
+            speechToText.StartRecording(OnSpeechResult);
         }
     }
 
-    // Waits for user input and processes it
-    private IEnumerator WaitForInput(TMP_InputField inputField)
+    // Stop speech-to-text recording
+    private void StopSpeechInput()
     {
-        bool submitted = false;
+        if (speechToText != null)
+        {
+            speechToText.StopRecording();
+            SetButton2Text("Ask Agent");
+            isRecording = false;
+            // Do not change TMP text here; OnSpeechResult will update it
+        }
+    }
 
-        inputField.onSubmit.AddListener((_) => submitted = true);
+    // Callback for speech-to-text result
+    private void OnSpeechResult(string result)
+    {
+        SetButton2Text("Ask Agent");
+        isRecording = false;
+        if (speechToTextTMP != null)
+        {
+            speechToTextTMP.text = "User: " + result;
+        }
+        if (!string.IsNullOrEmpty(result))
+        {
+            ShowThinkingDialog();
+            StartCoroutine(SendToGemini(result));
+        }
+    }
 
-        while (!submitted)
-            yield return null;
+    // Utility to set Button2 text
+    private void SetButton2Text(string text)
+    {
+        if (dialogButtons != null && dialogButtons.Length > 0 && dialogButtons[0] != null)
+        {
+            var btnText = dialogButtons[0].GetComponentInChildren<TextMeshProUGUI>();
+            if (btnText != null)
+                btnText.text = text;
+        }
+    }
 
-        string question = inputField.text;
-        inputField.text = "";
-        inputField.onSubmit.RemoveAllListeners();
-        inputField.gameObject.SetActive(false);
-
-        inputFieldActive = false;
-        HighlightButton(0);
-        buttonIndex = 0;
-
-        ShowThinkingDialog();
-        StartCoroutine(SendToGemini(question));
+    private void UpdateSpeechToText(string text)
+    {
+        if (currentDialog != null)
+        {
+            var tmp = currentDialog.transform.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>();
+            if (tmp != null)
+                tmp.text = text;
+        }
     }
 
     // Sends the user's question to the Gemini API and processes the response
@@ -313,7 +342,6 @@ public class AgentDialog : MonoBehaviour
         public string destination;
     }
 
-
     // Types the text character by character in the dialog box
     private IEnumerator TypeText(string fullText)
     {
@@ -397,7 +425,6 @@ public class AgentDialog : MonoBehaviour
         }
     }
 
-
     // Highlights the selected button in the dialog box
     private void HighlightButton(int index)
     {
@@ -407,10 +434,6 @@ public class AgentDialog : MonoBehaviour
             if (img != null)
                 img.color = (i == index) ? Color.yellow : Color.white;
         }
-
-        // currentUISelection = dialogButtons[index].GetComponent<Selectable>();
-        // if (currentUISelection != null)
-        //     EventSystem.current.SetSelectedGameObject(currentUISelection.gameObject);
     }
 
     // Positions the dialog box in front of the player
@@ -448,7 +471,10 @@ public class AgentDialog : MonoBehaviour
         }
 
         hasSentRequest = false;
-        inputFieldActive = false;
+        isRecording = false;
+        SetButton2Text("Ask Agent...");
+        if (speechToTextTMP != null)
+            speechToTextTMP.gameObject.SetActive(false);
     }
 
     // When the player enters the trigger area, set the detected player and camera
