@@ -14,6 +14,14 @@ public class VRGrab : MonoBehaviour
 
     private LineRenderer lineRenderer;
 
+    public static bool isGrabbing;
+    public static VRGrab instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
     private void Start()
     {
         lineRenderer = transform.GetComponent<LineRenderer>();
@@ -28,6 +36,8 @@ public class VRGrab : MonoBehaviour
                 ReleaseObject(); // release the grabbed object
             }
         }
+
+        isGrabbing = (grabbedObject != null);
     }
 
     void FixedUpdate()

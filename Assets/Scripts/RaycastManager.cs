@@ -409,6 +409,8 @@ public class RaycastManager : MonoBehaviour
      */
     private void OpenObjectMenu(InteractableObject interactable)
     {
+        HoverOutline.tooltipEnabled = false;
+
         GameObject selectedMenuCanvas = interactable.CompareTag("Grab") ? lightMenuCanvas : heavyMenuCanvas;
 
         if (selectedMenuCanvas.activeSelf && currentInteractableWithMenu == interactable)
@@ -454,6 +456,8 @@ public class RaycastManager : MonoBehaviour
      */
     public void CloseObjectMenu()
     {
+        HoverOutline.tooltipEnabled = true;
+
         if (currentInteractableWithMenu != null)
         {
             currentInteractableWithMenu.Exit();
