@@ -26,6 +26,8 @@ public class AgentDialog : MonoBehaviour
     private string chatHistory = "";
     [SerializeField] private SpeechToText speechToText;
     private bool isRecording = false;
+    private GameObject tooltip;
+
 
     void Update()
     {
@@ -484,6 +486,20 @@ public class AgentDialog : MonoBehaviour
         {
             isPlayerDetected = true;
             detectedPlayer = other.transform;
+
+            Transform[] allChildren = detectedPlayer.GetComponentsInChildren<Transform>(true);
+            foreach (Transform child in allChildren)
+            {
+                if (child.name == "AIToolTip")
+                {
+                    tooltip = child.gameObject;
+                    Debug.Log("Tooltip found!");
+                    break;
+                }
+            }
+
+            if (tooltip != null)
+                tooltip.SetActive(true);
         }
     }
 
@@ -496,6 +512,9 @@ public class AgentDialog : MonoBehaviour
             detectedPlayer = null;
             playerCamera = null;
             hasSentRequest = false;
+
+            if (tooltip != null)
+                tooltip.SetActive(false);
 
             if (currentDialog != null)
             {

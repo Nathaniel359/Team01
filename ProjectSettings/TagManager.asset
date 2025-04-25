@@ -22,6 +22,7 @@ TagManager:
   - Teleport
   - Quality
   - SpeechToText
+  - LocalToolTip
   layers:
   - Default
   - TransparentFX
