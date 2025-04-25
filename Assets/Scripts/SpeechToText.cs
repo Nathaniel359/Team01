@@ -34,7 +34,7 @@ public class SpeechToText : MonoBehaviour
     private void StartRecording()
     {
         Debug.Log("Starting Record");
-        text.color = Color.white;
+        text.color = Color.black;
         text.text = "Recording...";
         startButton.interactable = false;
         stopButton.interactable = true;
@@ -59,7 +59,7 @@ public class SpeechToText : MonoBehaviour
         text.text = "Sending...";
         stopButton.interactable = false;
         HuggingFaceAPI.AutomaticSpeechRecognition(bytes, response => {
-            text.color = Color.white;
+            text.color = Color.black;
             text.text = response;
             startButton.interactable = true;
         }, error => {
