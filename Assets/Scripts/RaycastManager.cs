@@ -502,7 +502,7 @@ public class RaycastManager : MonoBehaviour
             {
                 HandleTeleportDropdown();
                 return true;
-            }    
+            }
 
             // Prevent navigation of settings buttons if the dropdown is open
             if (isAccessibilityDropdownOpen)
@@ -676,7 +676,7 @@ public class RaycastManager : MonoBehaviour
      */
     private void Teleport(TMP_Dropdown dropdown)
     {
-        switch(dropdown.value)
+        switch (dropdown.value)
         {
             // Entrance
             case 0:
@@ -850,7 +850,7 @@ public class RaycastManager : MonoBehaviour
                     img.sprite = backgroundSprite;
                     img.type = Image.Type.Sliced;
                 }
-                img.color = colors.normalColor; // or whatever you want visible
+                img.color = colors.normalColor;
             }
 
             TextMeshProUGUI[] texts = dropdownList.GetComponentsInChildren<TextMeshProUGUI>(true);
@@ -874,7 +874,7 @@ public class RaycastManager : MonoBehaviour
             var images = dropdownList.GetComponentsInChildren<Image>(true);
             foreach (var img in images)
             {
-                img.material = overlayMaterial; // Assign your UIOverlay material here
+                img.material = overlayMaterial;
             }
         }
     }
@@ -928,7 +928,6 @@ public class RaycastManager : MonoBehaviour
     {
         if (canvas == null) return;
 
-        // Apply theme to ALL TMP_Dropdowns inside menuCanvas
         TMP_Dropdown[] dropdowns = canvas.GetComponentsInChildren<TMP_Dropdown>(true);
         foreach (var dropdown in dropdowns)
         {
