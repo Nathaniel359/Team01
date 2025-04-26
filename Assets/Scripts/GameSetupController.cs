@@ -4,6 +4,9 @@ using System.IO;
 
 public class GameSetupController : MonoBehaviour
 {
+    public GameObject lightMenuCanvas;
+    public GameObject heavyMenuCanvas;
+
     private void Start()
     {
         StartCoroutine(WaitAndSpawn());

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using TMPro;
+using Photon.Pun;
 
 public enum AccessibilityTheme
 {
@@ -25,6 +26,7 @@ public class RaycastManager : MonoBehaviour
     public TextMeshProUGUI rotateLabel;
     public TextMeshProUGUI scaleLabel;
     public Material overlayMaterial;
+    public PhotonView photonView;
 
     private string[] settingsButtonTags = { "Resume", "RaycastLength", "Speed", "Teleport", "Accessibility" };
     private int currentButtonIndex;
@@ -46,6 +48,7 @@ public class RaycastManager : MonoBehaviour
     {
         teleportationPlane = GameObject.FindGameObjectWithTag("Floor");
         GameObject[] menus = GameObject.FindGameObjectsWithTag("ObjectMenu");
+        photonView = GetComponentInParent<PhotonView>();
 
         foreach (GameObject menu in menus)
         {
@@ -77,12 +80,11 @@ public class RaycastManager : MonoBehaviour
                 }
             }
         }
-
-        lightMenuCanvas.SetActive(false);
     }
 
     void Update()
     {
+        if (!photonView.IsMine) return;
         /*
          * Handle settings menu toggle
          */
