@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Photon.Pun;
 
 // Handles light toggling and fading
 public class LightToggle : MonoBehaviour
@@ -11,9 +12,20 @@ public class LightToggle : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip turnOnClip;
     public AudioClip turnOffClip;
+    private PhotonView photonView;
 
+    void Start()
+    {
+        photonView = GetComponent<PhotonView>();
+    }
 
     public void ToggleLight()
+    {
+        photonView.RPC(nameof(RPC_ToggleLight), RpcTarget.All);
+    }
+
+    [PunRPC]
+    public void RPC_ToggleLight()
     {
         isOn = !isOn;
 

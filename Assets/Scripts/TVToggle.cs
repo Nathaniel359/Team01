@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -8,17 +9,23 @@ public class TVToggle : MonoBehaviour
     public Material tvOnMaterial;
     public Material tvOffMaterial;
     public VideoPlayer videoPlayer;
-
+    private PhotonView photonView;
     private bool isOn = false;
+
+    void Start()
+    {
+        photonView = GetComponent<PhotonView>();
+    }
 
     public void ToggleTV()
     {
-        isOn = !isOn;
-        UpdateTV();
+        photonView.RPC(nameof(RPC_ToggleTV), RpcTarget.All);
     }
 
-    void UpdateTV()
+    [PunRPC]
+    public void RPC_ToggleTV()
     {
+        isOn = !isOn;
 
         if (screenRenderer != null)
         {
