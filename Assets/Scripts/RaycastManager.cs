@@ -85,6 +85,7 @@ public class RaycastManager : MonoBehaviour
     void Update()
     {
         if (!photonView.IsMine) return;
+
         /*
          * Handle settings menu toggle
          */
