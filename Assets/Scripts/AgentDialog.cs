@@ -27,16 +27,56 @@ public class AgentDialog : MonoBehaviour
     private bool isRecording = false;
     private GameObject tooltip;
 
+    private bool isGuidedTourActive = false;
+    private int guidedTourStep = 0;
+    private GuidedTourStep[] guidedTourSteps;
+
+    private class GuidedTourStep
+    {
+        public string markerName;
+        public string message;
+        public GuidedTourStep(string markerName, string message)
+        {
+            this.markerName = markerName;
+            this.message = message;
+        }
+    }
+
+    void Start()
+    {
+        guidedTourSteps = new GuidedTourStep[]
+        {
+            new GuidedTourStep("Entrance Marker", "Welcome to the home! This is a cozy, single-story house with 3 bedrooms and 1 bathroom."),
+            new GuidedTourStep("Living Room Marker", "Here is the living room, a spacious area perfect for relaxing or entertaining guests."),
+            new GuidedTourStep("Bedroom1 Marker", "This is Bedroom 1, a cozy space ideal for a single bed and dresser."),
+            new GuidedTourStep("Bedroom2 Marker", "Here is Bedroom 2, another comfortable room suitable for a bed and dresser."),
+            new GuidedTourStep("BedroomMaster Marker", "Welcome to the master bedroom. There's plenty of space for a large bed, dresser, and nightstands."),
+            new GuidedTourStep("Office Marker", "This is the office, a quiet spot for work or study."),
+            new GuidedTourStep("Garage Marker", "Here is the garage, providing ample space for parking or storage."),
+            new GuidedTourStep("BathroomCommon Marker", "Finally, this is the bathroom, conveniently located for all bedrooms."),
+        };
+    }
 
     void Update()
     {
-        if (isPlayerDetected && (Input.GetKeyDown(KeyCode.M) || Input.GetButtonDown(InputMappings.ButtonHamburger)))
+        if (isGuidedTourActive)
         {
-            if (!hasSentRequest)
+            // Only allow exit via menu or Exit button
+            if (Input.GetKeyDown(KeyCode.M) || Input.GetButtonDown(InputMappings.ButtonHamburger))
             {
-                ShowThinkingDialog();
-                StartCoroutine(SendToGemini(""));
-                hasSentRequest = true;
+                EndGuidedTour();
+            }
+        }
+        else
+        {
+            if (isPlayerDetected && (Input.GetKeyDown(KeyCode.M) || Input.GetButtonDown(InputMappings.ButtonHamburger)))
+            {
+                if (!hasSentRequest)
+                {
+                    ShowThinkingDialog();
+                    StartCoroutine(SendToGemini(""));
+                    hasSentRequest = true;
+                }
             }
         }
 
@@ -45,6 +85,181 @@ public class AgentDialog : MonoBehaviour
             PositionDialog();
             HandleDialogNavigation();
         }
+    }
+
+    // Starts the guided tour and shows the dialog for the first room
+    public void StartGuidedTour()
+    {
+        isGuidedTourActive = true;
+        guidedTourStep = 0;
+        ShowGuidedTourDialog(guidedTourSteps[guidedTourStep].message);
+    }
+
+    // Shows the dialog for the current guided tour step after arriving at a room
+    private void ShowGuidedTourStep()
+    {
+        if (guidedTourStep >= guidedTourSteps.Length)
+        {
+            EndGuidedTour();
+            return;
+        }
+        ShowGuidedTourDialog(guidedTourSteps[guidedTourStep].message);
+    }
+
+    // Displays the guided tour dialog for the current room and sets up auto-advance
+    private void ShowGuidedTourDialog(string message)
+    {
+        if (currentDialog != null)
+        {
+            Destroy(currentDialog);
+            currentDialog = null;
+        }
+
+        CreateEmptyDialog();
+        UpdateDialogText(message);
+
+        // Only enable Exit button (Button3)
+        for (int i = 0; i < dialogButtons.Length; i++)
+        {
+            var btn = dialogButtons[i]?.GetComponent<Button>();
+            if (btn != null)
+                btn.interactable = (i == 2);
+        }
+        buttonIndex = 2;
+        HighlightButton(buttonIndex);
+
+        // Start coroutine to proceed to next step after a short delay, unless user exits
+        StartCoroutine(AutoProceedOrWaitForExit());
+    }
+
+    // Waits for a few seconds, then proceeds to the next step unless the user exited
+    private IEnumerator AutoProceedOrWaitForExit()
+    {
+        float waitTime = 3.5f;
+        float timer = 0f;
+        while (isGuidedTourActive && timer < waitTime)
+        {
+            if (!isGuidedTourActive)
+                yield break;
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        if (isGuidedTourActive)
+            StartCoroutine(ProceedToNextGuidedTourStep());
+    }
+
+    // Handles navigation through the dialog buttons
+    private void HandleDialogNavigation()
+    {
+        if (isGuidedTourActive)
+        {
+            // Only allow pressing Y on Exit button
+            if ((Input.GetKeyDown(KeyCode.Y) || Input.GetButtonDown(InputMappings.ButtonY)) && buttonIndex == 2)
+            {
+                EndGuidedTour();
+            }
+            return;
+        }
+
+        if (dialogButtons == null || dialogButtons.Length == 0) return;
+
+        float horComp = Input.GetAxis("Horizontal");
+
+        if (Time.time - lastNavTime > navDelay)
+        {
+            int newIndex = buttonIndex;
+
+            if (horComp > 0.5f && buttonIndex < dialogButtons.Length - 1)
+                newIndex = buttonIndex + 1;
+            else if (horComp < -0.5f && buttonIndex > 0)
+                newIndex = buttonIndex - 1;
+
+            if (newIndex != buttonIndex)
+            {
+                HighlightButton(newIndex);
+                buttonIndex = newIndex;
+                lastNavTime = Time.time;
+            }
+        }
+
+        var speechTMP = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject;
+
+        if (speechTMP != null)
+        {
+            speechTMP.SetActive(dialogButtons[buttonIndex]?.tag == "Button2");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Y) || Input.GetButtonDown(InputMappings.ButtonY))
+        {
+            if (dialogButtons[buttonIndex].tag == "Button1")
+            {
+                // Start guided tour when Button1 is selected and Y is pressed
+                StartGuidedTour();
+            }
+            else if (dialogButtons[buttonIndex].tag == "Button2")
+            {
+                // Voice input logic
+                if (!isRecording)
+                {
+                    StartSpeechInput();
+                }
+                else
+                {
+                    StopSpeechInput();
+                }
+            }
+            else if (dialogButtons[buttonIndex].tag == "Button3")
+            {
+                CloseDialog();
+            }
+        }
+    }
+
+    // Ends the guided tour and closes the dialog
+    private void EndGuidedTour()
+    {
+        isGuidedTourActive = false;
+        guidedTourStep = 0;
+        CloseDialog();
+    }
+
+    // Called when the agent reaches the destination during the guided tour
+    public void OnAgentReachedDestination()
+    {
+        if (isGuidedTourActive)
+        {
+            StartCoroutine(ShowNextGuidedTourDialogAfterArrival());
+        }
+    }
+
+    // Waits after arrival, then shows the dialog for the next guided tour step
+    private IEnumerator ShowNextGuidedTourDialogAfterArrival()
+    {
+        yield return new WaitForSeconds(1.5f);
+        ShowGuidedTourStep();
+    }
+
+    // Proceeds to the next guided tour step: closes dialog, moves to next room, waits for arrival
+    private IEnumerator ProceedToNextGuidedTourStep()
+    {
+        CloseDialog();
+
+        guidedTourStep++;
+        if (guidedTourStep >= guidedTourSteps.Length)
+        {
+            EndGuidedTour();
+            yield break;
+        }
+
+        var step = guidedTourSteps[guidedTourStep];
+        GameObject marker = GameObject.Find(step.markerName);
+        if (marker != null)
+        {
+            var agentNavigate = GetComponent<Navigate>();
+            if (agentNavigate != null)
+                agentNavigate.current_room = marker;
+        }
+        // Wait for OnAgentReachedDestination to show dialog for next room
     }
 
     // Displays the dialog box with the "Thinking..." message
@@ -110,62 +325,6 @@ public class AgentDialog : MonoBehaviour
                 }
 
                 movement.speed = 0;
-            }
-        }
-    }
-
-    // Handles navigation through the dialog buttons
-    private void HandleDialogNavigation()
-    {
-        if (dialogButtons == null || dialogButtons.Length == 0) return;
-
-        float horComp = Input.GetAxis("Horizontal");
-
-        if (Time.time - lastNavTime > navDelay)
-        {
-            int newIndex = buttonIndex;
-
-            if (horComp > 0.5f && buttonIndex < dialogButtons.Length - 1)
-                newIndex = buttonIndex + 1;
-            else if (horComp < -0.5f && buttonIndex > 0)
-                newIndex = buttonIndex - 1;
-
-            if (newIndex != buttonIndex)
-            {
-                HighlightButton(newIndex);
-                buttonIndex = newIndex;
-                lastNavTime = Time.time;
-            }
-        }
-
-        var speechTMP = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject;
-
-        if (speechTMP != null)
-        {
-            speechTMP.SetActive(dialogButtons[buttonIndex]?.tag == "Button2");
-        }
-
-        if (Input.GetKeyDown(KeyCode.Y) || Input.GetButtonDown(InputMappings.ButtonY))
-        {
-            if (dialogButtons[buttonIndex].tag == "Button1")
-            {
-                Debug.Log("Button1 selected and Y pressed.");
-            }
-            else if (dialogButtons[buttonIndex].tag == "Button2")
-            {
-                // Voice input logic
-                if (!isRecording)
-                {
-                    StartSpeechInput();
-                }
-                else
-                {
-                    StopSpeechInput();
-                }
-            }
-            else if (dialogButtons[buttonIndex].tag == "Button3")
-            {
-                CloseDialog();
             }
         }
     }
@@ -521,22 +680,22 @@ public class AgentDialog : MonoBehaviour
     }
 
     // When the player exits the trigger area, reset the dialog and player state
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Character"))
-        {
-            isPlayerDetected = false;
-            detectedPlayer = null;
-            playerCamera = null;
-            hasSentRequest = false;
+    // private void OnTriggerExit(Collider other)
+    // {
+    //     if (other.CompareTag("Character"))
+    //     {
+    //         isPlayerDetected = false;
+    //         detectedPlayer = null;
+    //         playerCamera = null;
+    //         hasSentRequest = false;
 
-            if (tooltip != null)
-                tooltip.SetActive(false);
+    //         if (tooltip != null)
+    //             tooltip.SetActive(false);
 
-            if (currentDialog != null)
-            {
-                CloseDialog();
-            }
-        }
-    }
+    //         if (currentDialog != null)
+    //         {
+    //             CloseDialog();
+    //         }
+    //     }
+    // }
 }
