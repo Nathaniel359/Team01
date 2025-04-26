@@ -139,7 +139,7 @@ public class AgentDialog : MonoBehaviour
         }
 
         var speechTMP = currentDialog?.transform?.Find("SpeechToTextTMP")?.GetComponent<TextMeshProUGUI>()?.gameObject;
-        Debug.Log(speechTMP);
+
         if (speechTMP != null)
         {
             speechTMP.SetActive(dialogButtons[buttonIndex]?.tag == "Button2");
