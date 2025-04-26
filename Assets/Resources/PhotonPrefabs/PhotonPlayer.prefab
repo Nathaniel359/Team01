@@ -4413,6 +4413,7 @@ MonoBehaviour:
   rotateLabel: {fileID: 0}
   scaleLabel: {fileID: 0}
   overlayMaterial: {fileID: 2100000, guid: 7b9bb7228b3784e008e5ff2016e8f7ce, type: 2}
+  photonView: {fileID: 0}
   sliderSpeed: 50
 --- !u!114 &6682272267543149085
 MonoBehaviour:

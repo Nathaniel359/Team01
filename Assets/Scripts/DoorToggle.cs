@@ -1,12 +1,12 @@
 using UnityEngine;
 using System.Collections;
+using Photon.Pun;
 
-// Open/close door
-public class DoorToggle : MonoBehaviour
+public class DoorToggle : MonoBehaviourPun
 {
-    public Transform doorHinge; // Assign the pivot point of the door
-    public float openAngle = 90f; // How far it opens
-    public float speed = 2f; // Opening/closing speed
+    public Transform doorHinge;
+    public float openAngle = 90f;
+    public float speed = 2f;
     public bool isOpen = false;
 
     public AudioSource audioSource;
@@ -28,6 +28,12 @@ public class DoorToggle : MonoBehaviour
 
     public void ToggleDoor()
     {
+        photonView.RPC("RPC_ToggleDoor", RpcTarget.AllBuffered);
+    }
+
+    [PunRPC]
+    void RPC_ToggleDoor()
+    {
         if (currentAnim != null)
             StopCoroutine(currentAnim);
 
@@ -42,7 +48,6 @@ public class DoorToggle : MonoBehaviour
                 audioSource.pitch = Random.Range(0.8f, 1.2f);
                 audioSource.PlayOneShot(clipToPlay);
             }
-
         }
     }
 
