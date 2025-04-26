@@ -278,7 +278,7 @@ public class RaycastManager : MonoBehaviour
                                         var sit = currentInteractableWithMenu.GetComponent<SitTarget>();
                                         if (sit != null)
                                         {
-                                            sit.ToggleSit();
+                                            sit.ToggleSit(this.gameObject);
                                             return;
                                         }
                                     }

@@ -3,7 +3,7 @@ using UnityEngine;
 // Handles sitting
 public class SitTarget : MonoBehaviour
 {
-    public GameObject player;
+    private GameObject player;
     public CharacterController controller;
     public Transform sitPoint;
 
@@ -20,7 +20,7 @@ public class SitTarget : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Character");
 
-        if(player == null )
+        if(player == null)
         {
             controller = player.GetComponent<CharacterController>();
             movementScript = player.GetComponent<CharacterMovement>();
@@ -30,8 +30,14 @@ public class SitTarget : MonoBehaviour
         
     }
 
-    public void ToggleSit()
+    public void ToggleSit(GameObject playerParam)
     {
+        player = playerParam;
+        controller = player.GetComponent<CharacterController>();
+        movementScript = player.GetComponent<CharacterMovement>();
+        originalHeight = controller.height;
+        originalCenter = controller.center;
+
         if (!isSitting)
             Sit();
         else
