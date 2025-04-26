@@ -56,7 +56,7 @@ public class InteractionController : MonoBehaviour
                 var sit = hit.collider.GetComponent<SitTarget>();
                 if (sit != null)
                 {
-                    sit.ToggleSit();
+                    sit.ToggleSit(this.gameObject);
                     return;
                 }
             }
