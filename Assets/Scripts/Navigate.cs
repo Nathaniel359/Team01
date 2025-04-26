@@ -6,21 +6,52 @@ public class Navigate : MonoBehaviour
 {
     private NavMeshAgent agent;
 
-    // Assign desired postion to current_room for navigation
-    public GameObject current_room = null;
+    private GameObject _current_room = null;
+    public GameObject current_room
+    {
+        get => _current_room;
+        set
+        {
+            if (_current_room != value)
+            {
+                _current_room = value;
+                hasReached = false; // Reset so arrival event can fire
+            }
+        }
+    }
+
+    private bool hasReached = false;
+    private AgentDialog agentDialog;
 
     void Start()
     {
-        // Surface the agent can walk on
         agent = GetComponent<NavMeshAgent>();
-
-        // current_room must be assigned, so set it to agent's starting position
+        agentDialog = GetComponent<AgentDialog>();
         current_room = transform.gameObject;
     }
 
     void Update()
     {
-        // Agent navigates to current_room
-        agent.SetDestination(current_room.transform.position);
+        if (current_room != null)
+        {
+            agent.SetDestination(current_room.transform.position);
+
+            // Check if agent has reached the destination
+            if (!agent.pathPending &&
+                agent.remainingDistance <= agent.stoppingDistance &&
+                (!agent.hasPath || agent.velocity.sqrMagnitude == 0f))
+            {
+                if (!hasReached)
+                {
+                    hasReached = true;
+                    if (agentDialog != null)
+                        agentDialog.OnAgentReachedDestination();
+                }
+            }
+            else
+            {
+                hasReached = false;
+            }
+        }
     }
 }
