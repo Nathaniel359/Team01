@@ -46,6 +46,11 @@ MonoBehaviour:
   - RPC_ToggleLight
   - RPC_ToggleSit
   - RPC_ToggleTV
+  - RpcGrabObject
+  - RpcReleaseObject
+  - RpcRotateObject
+  - RpcScaleObject
+  - RpcMoveGrabbedObject
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -63,7 +63,7 @@ public class RaycastManager : MonoBehaviour
         }
 
         List<Slider> menuSliders = new List<Slider>();
-
+        
         if (lightMenuCanvas != null)
         {
             menuSliders.AddRange(lightMenuCanvas.GetComponentsInChildren<Slider>());
@@ -115,31 +115,8 @@ public class RaycastManager : MonoBehaviour
         /*
          * Adjust selected slider value
          */
-        if (selectedSlider != null)
-        {
-            float horizontal = Input.GetAxis("Horizontal");
-            if (Mathf.Abs(horizontal) > 0.1f)
-            {
-                float adjustmentSpeed = selectedSlider.gameObject.name == "Scale" ? sliderSpeed * 0.5f : sliderSpeed;
-                selectedSlider.value += horizontal * Time.deltaTime * adjustmentSpeed;
-
-                if (currentInteractableWithMenu != null)
-                {
-                    if (selectedSlider.gameObject.name == "Rotate")
-                    {
-                        currentInteractableWithMenu.transform.rotation = Quaternion.Euler(0f, selectedSlider.value, 0f);
-                        if (rotateLabel != null)
-                            rotateLabel.text = $"Rotate: {Mathf.RoundToInt(selectedSlider.value)}°";
-                    }
-                    else if (selectedSlider.gameObject.name == "Scale")
-                    {
-                        currentInteractableWithMenu.transform.localScale = Vector3.one * selectedSlider.value;
-                        if (scaleLabel != null)
-                            scaleLabel.text = $"Scale: {selectedSlider.value:F1}x";
-                    }
-                }
-            }
-        }
+        InteractableMenuController sliderController = GetComponentInParent<InteractableMenuController>();
+        sliderController.getInteractable(currentInteractableWithMenu);
 
         /*
          * Handle object menu raycasting
@@ -227,24 +204,21 @@ public class RaycastManager : MonoBehaviour
                                 image.color = Color.yellow;
                             }
 
-
+                            
                             if (slider != null)
                             {
-                                selectedSlider = slider;
-
-                                if (slider.gameObject.name == "Rotate" && rotateLabel != null)
-                                    rotateLabel.text = $"Rotate: {Mathf.RoundToInt(slider.value)}°";
-                                else if (slider.gameObject.name == "Scale" && scaleLabel != null)
-                                    scaleLabel.text = $"Scale: {slider.value:F1}x";
+                                sliderController.getSlider(slider);
                             }
-
+                            
                             if ((Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y)) && button != null)
                             {
                                 if (button.gameObject.name == "Grab")
                                 {
                                     if (currentInteractableWithMenu != null)
                                     {
+                                        Debug.Log($"RaycastManager: Trying to grab {currentInteractableWithMenu?.gameObject.name}");
                                         character.GetComponent<VRGrab>().TryGrabObject(currentInteractableWithMenu.gameObject);
+                                        Debug.Log($"RaycastManager: Called TryGrabObject on {currentInteractableWithMenu?.gameObject.name}");
                                     }
                                 }
                                 else if (button.gameObject.name == "Exit")
