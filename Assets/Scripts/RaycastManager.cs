@@ -216,9 +216,7 @@ public class RaycastManager : MonoBehaviour
                                 {
                                     if (currentInteractableWithMenu != null)
                                     {
-                                        Debug.Log($"RaycastManager: Trying to grab {currentInteractableWithMenu?.gameObject.name}");
                                         character.GetComponent<VRGrab>().TryGrabObject(currentInteractableWithMenu.gameObject);
-                                        Debug.Log($"RaycastManager: Called TryGrabObject on {currentInteractableWithMenu?.gameObject.name}");
                                     }
                                 }
                                 else if (button.gameObject.name == "Exit")

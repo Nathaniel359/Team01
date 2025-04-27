@@ -41,18 +41,24 @@ public class VRGrab : MonoBehaviourPun
                     ReleaseObject();
                 }
             }
+
+            // Continuously update and sync the grabbed object's position when holding it
+            if (grabbedObject != null)
+            {
+                UpdateGrabbedObjectPosition();
+            }
         }
 
         isGrabbing = (grabbedObject != null && photonView.IsMine); // Only true if we are grabbing and it's our hand
     }
 
-    void FixedUpdate()
+    void UpdateGrabbedObjectPosition()
     {
-        // Only move the object if we are the one holding it
-        if (grabbedObject != null && photonView.IsMine)
-        {
-            MoveGrabbedObject();
-        }
+        if (!photonView.IsMine || grabbedObject == null) return;
+
+        Vector3 targetPosition = mainCamera.transform.position + mainCamera.transform.forward * grabDistance;
+
+        photonView.RPC("RpcUpdateGrabbedObjectPosition", RpcTarget.AllBuffered, targetPosition);
     }
 
     public void ForceGrab(GameObject targetObject)
@@ -135,16 +141,10 @@ public class VRGrab : MonoBehaviourPun
             grabbedObject = targetObject;
             grabbedRigidbody = grabbedObject.GetComponent<Rigidbody>();
 
-            // Get or Add PhotonTransformView
             photonTransformView = grabbedObject.GetComponent<PhotonTransformView>();
             if (photonTransformView == null)
             {
                 photonTransformView = grabbedObject.AddComponent<PhotonTransformView>();
-            }
-            //Correct way to set interpolation
-            if (photonTransformView != null)
-            {
-                //Removed interpolation
             }
 
             if (grabbedRigidbody != null)
@@ -161,27 +161,11 @@ public class VRGrab : MonoBehaviourPun
         }
     }
 
-
-    void MoveGrabbedObject()
-    {
-        if (!photonView.IsMine) return;
-        if (grabbedObject != null)
-        {
-            PhotonView grabbedObjectPhotonView = grabbedObject.GetComponent<PhotonView>();
-            if (grabbedObjectPhotonView != null)
-            {
-                photonView.RPC("RpcMoveGrabbedObject", RpcTarget.AllBuffered);
-            }
-        }
-    }
-
     [PunRPC]
-    void RpcMoveGrabbedObject()
+    void RpcUpdateGrabbedObjectPosition(Vector3 targetPosition)
     {
         if (grabbedObject != null)
         {
-            Vector3 targetPosition = mainCamera.transform.position + mainCamera.transform.forward * grabDistance;
-
             if (grabbedTag == "HeavyGrab")
             {
                 targetPosition.y = grabbedObject.transform.position.y;
