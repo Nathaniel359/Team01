@@ -17,7 +17,7 @@ public class InteractableMenuController : MonoBehaviourPun
     private void Start()
     {
         GameObject[] menus = GameObject.FindGameObjectsWithTag("ObjectMenu");
-        
+
 
         foreach (GameObject menu in menus)
         {
@@ -74,7 +74,7 @@ public class InteractableMenuController : MonoBehaviourPun
                     photonView.RPC("RpcRotateObject", RpcTarget.All, currentInteractableWithMenu.GetComponent<PhotonView>().ViewID, newValue);
                     if (rotateLabel != null)
                     {
-                        rotateLabel.text = $"Rotate: {Mathf.RoundToInt(newValue)}°";
+                        rotateLabel.text = $"Rotate: {Mathf.RoundToInt(newValue)}Â°";
                     }
                 }
                 else if (selectedSlider.gameObject.name == "Scale")
@@ -93,7 +93,7 @@ public class InteractableMenuController : MonoBehaviourPun
             // and the labels are updated here based on the local slider value.
             if (selectedSlider.gameObject.name == "Rotate" && rotateLabel != null)
             {
-                rotateLabel.text = $"Rotate: {Mathf.RoundToInt(selectedSlider.value)}°";
+                rotateLabel.text = $"Rotate: {Mathf.RoundToInt(selectedSlider.value)}ï¿½";
             }
             else if (selectedSlider.gameObject.name == "Scale" && scaleLabel != null)
             {

@@ -46,7 +46,7 @@ public class AgentDialog : MonoBehaviour
     {
         guidedTourSteps = new GuidedTourStep[]
         {
-            new GuidedTourStep("Entrance Marker", "Welcome to the home! This is a cozy, single-story house with 3 bedrooms and 1 bathroom."),
+            new GuidedTourStep("Entrance Marker", "Press menu at any time to exit the tour. Welcome to the home! This is a cozy, single-story house with 3 bedrooms and 1 bathroom. You can also press Exit to leave the tour."),
             new GuidedTourStep("Living Room Marker", "Here is the living room, a spacious area perfect for relaxing or entertaining guests."),
             new GuidedTourStep("Bedroom1 Marker", "This is Bedroom 1, a cozy space ideal for a single bed and dresser."),
             new GuidedTourStep("Bedroom2 Marker", "Here is Bedroom 2, another comfortable room suitable for a bed and dresser."),
