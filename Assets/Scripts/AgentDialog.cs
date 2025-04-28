@@ -46,7 +46,7 @@ public class AgentDialog : MonoBehaviour
     {
         guidedTourSteps = new GuidedTourStep[]
         {
-            new GuidedTourStep("Entrance Marker", "Press menu at any time to exit the tour. Welcome to the home! This is a cozy, single-story house with 3 bedrooms and 1 bathroom. You can also press Exit to leave the tour."),
+            new GuidedTourStep("Entrance Marker", "Welcome to the home! This tour is automated, press exit to stop the tour. You can also press menu at any time to exit the tour. Follow me!"),
             new GuidedTourStep("Living Room Marker", "Here is the living room, a spacious area perfect for relaxing or entertaining guests."),
             new GuidedTourStep("Bedroom1 Marker", "This is Bedroom 1, a cozy space ideal for a single bed and dresser."),
             new GuidedTourStep("Bedroom2 Marker", "Here is Bedroom 2, another comfortable room suitable for a bed and dresser."),
@@ -135,7 +135,7 @@ public class AgentDialog : MonoBehaviour
     // Waits for a few seconds, then proceeds to the next step unless the user exited
     private IEnumerator AutoProceedOrWaitForExit()
     {
-        float waitTime = 3.5f;
+        float waitTime = 5f;
         float timer = 0f;
         while (isGuidedTourActive && timer < waitTime)
         {
