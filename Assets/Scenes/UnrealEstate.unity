@@ -6249,15 +6249,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 532011966876309359, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor.b
-      value: 0.15294118
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 532011966876309359, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor.g
-      value: 0.8235294
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 532011966876309359, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor.r
-      value: 0.8235294
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 532011966876309359, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontSizeBase
@@ -6265,7 +6265,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 532011966876309359, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 4280799954
+      value: 4278914060
       objectReference: {fileID: 0}
     - target: {fileID: 1855501159368550415, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_Name
@@ -6533,19 +6533,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8337587289885761058, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor.b
-      value: 0.15098791
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8337587289885761058, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor.g
-      value: 0.8207547
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8337587289885761058, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor.r
-      value: 0.8207547
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8337587289885761058, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 4280799697
+      value: 4281286463
       objectReference: {fileID: 0}
     - target: {fileID: 9186545823122969456, guid: 64783d730a68b450988d29a8e08b5890, type: 3}
       propertyPath: m_SizeDelta.x
