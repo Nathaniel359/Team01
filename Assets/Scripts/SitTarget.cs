@@ -148,12 +148,26 @@ public class SitTarget : MonoBehaviourPunCallbacks
             audioSource.PlayOneShot(audioClip);
         }
 
+        // Disable CharacterController to move safely
+        data.controller.enabled = false;
+
         // Snap to sit position
         data.player.transform.position = sitPoints[sitPointIndex].position;
 
+        // Re-enable CharacterController
+        data.controller.enabled = true;
+
         // Adjust character controller for sitting
-        data.controller.height = 0.4f;
-        data.controller.center = new Vector3(data.originalCenter.x, 0.2f, data.originalCenter.z);
+        data.controller.height = 1.5f;
+        data.controller.center = new Vector3(data.originalCenter.x, 0.75f, data.originalCenter.z);
+
+        // adjust body scale
+        Transform bodyTransform = data.player.transform.Find("XRCardboardRig/HeightOffset/Main Camera/BodyMesh/BodyPivot");
+        if (bodyTransform != null)
+        {
+            Debug.Log("Found Body");
+            bodyTransform.localScale = new Vector3(1.0f, 0.5f, 1.0f); // Half height for sitting
+        }
     }
 
     void Stand(int playerViewID)
@@ -166,9 +180,27 @@ public class SitTarget : MonoBehaviourPunCallbacks
         PlayerData data = playerData[playerViewID];
         data.isSitting = false;
 
+        // Disable CharacterController to move safely
+        data.controller.enabled = false;
+
+        // Move player up slightly
+        data.player.transform.position += new Vector3(0, 0.4f, 0);
+
+        // Re-enable CharacterController
+        data.controller.enabled = true;
+
         // Restore original height and center
         data.controller.height = data.originalHeight;
         data.controller.center = data.originalCenter;
+
+        // Restore body scale
+        Transform bodyTransform = data.player.transform.Find("XRCardboardRig/HeightOffset/Main Camera/BodyMesh/BodyPivot");
+        if (bodyTransform != null)
+        {
+            Debug.Log("Found Body");
+            bodyTransform.localScale = Vector3.one; // Restore normal size
+        }
+
 
         // Clear sit point occupancy
         occupiedSitPoints.Remove(playerViewID);
