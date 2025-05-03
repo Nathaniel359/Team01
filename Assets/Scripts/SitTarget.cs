@@ -162,7 +162,7 @@ public class SitTarget : MonoBehaviourPunCallbacks
         data.controller.center = new Vector3(data.originalCenter.x, 0.75f, data.originalCenter.z);
 
         // adjust body scale
-        Transform bodyTransform = data.player.transform.Find("XRCardboardRig/HeightOffset/Main Camera/BodyMesh/BodyPivot");
+        Transform bodyTransform = data.player.transform.Find("XRCardboardRig/HeightOffset/BodyMesh/BodyPivot");
         if (bodyTransform != null)
         {
             Debug.Log("Found Body");
@@ -194,7 +194,7 @@ public class SitTarget : MonoBehaviourPunCallbacks
         data.controller.center = data.originalCenter;
 
         // Restore body scale
-        Transform bodyTransform = data.player.transform.Find("XRCardboardRig/HeightOffset/Main Camera/BodyMesh/BodyPivot");
+        Transform bodyTransform = data.player.transform.Find("XRCardboardRig/HeightOffset/BodyMesh/BodyPivot");
         if (bodyTransform != null)
         {
             Debug.Log("Found Body");

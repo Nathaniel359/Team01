@@ -52,6 +52,7 @@ MonoBehaviour:
   - RpcScaleObject
   - RpcMoveGrabbedObject
   - RpcUpdateGrabbedObjectPosition
+  - UpdateFacing
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
