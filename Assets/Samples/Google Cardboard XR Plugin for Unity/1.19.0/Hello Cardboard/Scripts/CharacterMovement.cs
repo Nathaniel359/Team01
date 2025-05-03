@@ -16,6 +16,10 @@ public class CharacterMovement : MonoBehaviourPunCallbacks
     public AudioSource footstepSource;
     public AudioClip footstepClip;
 
+    public Transform characterMesh; // Assign in the inspector
+    private Vector3 lastSentForward;
+
+
     private float stepTimer = 0f;
 
     void Start()
@@ -82,7 +86,35 @@ public class CharacterMovement : MonoBehaviourPunCallbacks
         {
             stepTimer = 0f;
         }
+
+        if (photonView.IsMine)
+        {
+            Vector3 forwardDir = cameraObj.transform.forward;
+            forwardDir.y = 0;
+            forwardDir.Normalize();
+
+            if (Vector3.Distance(forwardDir, lastSentForward) > 0.05f)
+            {
+                photonView.RPC("UpdateFacing", RpcTarget.Others, forwardDir);
+                lastSentForward = forwardDir;
+            }
+        }
+
     }
+
+    [PunRPC]
+    public void UpdateFacing(Vector3 forward)
+    {
+        if (characterMesh == null) return;
+
+        forward.y = 0;
+        if (forward.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(forward);
+            characterMesh.rotation = Quaternion.Slerp(characterMesh.rotation, targetRot, 0.2f); // Smooth
+        }
+    }
+
 
     void PlayFootstep()
     {
