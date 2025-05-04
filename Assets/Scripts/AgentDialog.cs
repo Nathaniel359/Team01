@@ -700,4 +700,26 @@ public class AgentDialog : MonoBehaviour
         if (speechTMP != null)
             speechTMP.SetActive(false);
     }
+
+    // When the player enters the trigger area, set the detected player and camera
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Character"))
+        {
+            Transform detectedPlayer = other.transform;
+            Transform[] allChildren = detectedPlayer.GetComponentsInChildren<Transform>(true);
+            foreach (Transform child in allChildren)
+            {
+                if (child.name == "AIToolTip")
+                {
+                    tooltip = child.gameObject;
+                    Debug.Log("Tooltip found!");
+                    break;
+                }
+            }
+
+            if (tooltip != null)
+                tooltip.SetActive(true);
+        }
+    }
 }
