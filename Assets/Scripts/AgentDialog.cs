@@ -12,8 +12,6 @@ public class AgentDialog : MonoBehaviour
     public GameObject dialogTemplate;
     public GameObject currentDialog;
 
-    private bool isPlayerDetected = false;
-    private Transform detectedPlayer;
     private Camera playerCamera;
     private bool hasSentRequest = false;
     private int buttonIndex = 0;
@@ -69,7 +67,7 @@ public class AgentDialog : MonoBehaviour
         }
         else
         {
-            if (isPlayerDetected && (Input.GetKeyDown(KeyCode.M) || Input.GetButtonDown(InputMappings.ButtonHamburger)))
+            if (Input.GetKeyDown(KeyCode.M) || Input.GetButtonDown(InputMappings.ButtonHamburger))
             {
                 if (!hasSentRequest)
                 {
@@ -257,7 +255,24 @@ public class AgentDialog : MonoBehaviour
         {
             var agentNavigate = GetComponent<Navigate>();
             if (agentNavigate != null)
-                agentNavigate.current_room = marker;
+            {
+                // Check if agent is already at the marker (within a small threshold)
+                float threshold = 0.5f;
+                Vector3 agentPos = agentNavigate.transform.position;
+                Vector3 markerPos = marker.transform.position;
+                agentPos.y = 0;
+                markerPos.y = 0;
+                if (Vector3.Distance(agentPos, markerPos) <= threshold)
+                {
+                    // Already at destination, show dialog immediately
+                    ShowGuidedTourStep();
+                    yield break;
+                }
+                else
+                {
+                    agentNavigate.current_room = marker;
+                }
+            }
         }
         // Wait for OnAgentReachedDestination to show dialog for next room
     }
@@ -295,8 +310,17 @@ public class AgentDialog : MonoBehaviour
         currentDialog = Instantiate(dialogTemplate, dialogBox.transform);
         currentDialog.transform.SetParent(dialogBox.transform, false);
 
-        if (detectedPlayer != null)
-            playerCamera = detectedPlayer.GetComponentInChildren<Camera>();
+        // Set playerCamera to the local player's camera
+        playerCamera = null;
+        foreach (var go in GameObject.FindGameObjectsWithTag("Character"))
+        {
+            var photonView = go.GetComponent<Photon.Pun.PhotonView>();
+            if (photonView != null && photonView.IsMine)
+            {
+                playerCamera = go.GetComponentInChildren<Camera>();
+                break;
+            }
+        }
 
         currentDialog.SetActive(true);
 
@@ -312,8 +336,17 @@ public class AgentDialog : MonoBehaviour
 
         isRecording = false;
 
-        // Disable player movement
-        GameObject character = GameObject.FindGameObjectWithTag("Character");
+        // Disable player movement for the local player only (Photon)
+        GameObject character = null;
+        foreach (var go in GameObject.FindGameObjectsWithTag("Character"))
+        {
+            var photonView = go.GetComponent<Photon.Pun.PhotonView>();
+            if (photonView != null && photonView.IsMine)
+            {
+                character = go;
+                break;
+            }
+        }
         if (character != null)
         {
             var movement = character.GetComponent<CharacterMovement>();
@@ -461,6 +494,10 @@ public class AgentDialog : MonoBehaviour
                     chatHistory += "\nAgent: " + reply;
                 else
                     chatHistory += "\nUser: " + question + "\nAgent: " + reply;
+
+                // Ignore destination on the very first prompt
+                if (string.IsNullOrEmpty(question))
+                    destination = null;
 
                 StartCoroutine(HandleAgentResponse(reply, destination));
             }
@@ -636,7 +673,16 @@ public class AgentDialog : MonoBehaviour
             currentDialog = null;
         }
 
-        GameObject character = GameObject.FindGameObjectWithTag("Character");
+        GameObject character = null;
+        foreach (var go in GameObject.FindGameObjectsWithTag("Character"))
+        {
+            var photonView = go.GetComponent<Photon.Pun.PhotonView>();
+            if (photonView != null && photonView.IsMine)
+            {
+                character = go;
+                break;
+            }
+        }
         if (character != null)
         {
             var movement = character.GetComponent<CharacterMovement>();
@@ -660,9 +706,7 @@ public class AgentDialog : MonoBehaviour
     {
         if (other.CompareTag("Character"))
         {
-            isPlayerDetected = true;
-            detectedPlayer = other.transform;
-
+            Transform detectedPlayer = other.transform;
             Transform[] allChildren = detectedPlayer.GetComponentsInChildren<Transform>(true);
             foreach (Transform child in allChildren)
             {
@@ -678,24 +722,4 @@ public class AgentDialog : MonoBehaviour
                 tooltip.SetActive(true);
         }
     }
-
-    // When the player exits the trigger area, reset the dialog and player state
-    // private void OnTriggerExit(Collider other)
-    // {
-    //     if (other.CompareTag("Character"))
-    //     {
-    //         isPlayerDetected = false;
-    //         detectedPlayer = null;
-    //         playerCamera = null;
-    //         hasSentRequest = false;
-
-    //         if (tooltip != null)
-    //             tooltip.SetActive(false);
-
-    //         if (currentDialog != null)
-    //         {
-    //             CloseDialog();
-    //         }
-    //     }
-    // }
 }
