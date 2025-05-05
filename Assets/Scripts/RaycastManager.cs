@@ -63,7 +63,7 @@ public class RaycastManager : MonoBehaviour
         }
 
         List<Slider> menuSliders = new List<Slider>();
-        
+
         if (lightMenuCanvas != null)
         {
             menuSliders.AddRange(lightMenuCanvas.GetComponentsInChildren<Slider>());
@@ -204,12 +204,12 @@ public class RaycastManager : MonoBehaviour
                                 image.color = Color.yellow;
                             }
 
-                            
+
                             if (slider != null)
                             {
                                 sliderController.getSlider(slider);
                             }
-                            
+
                             if ((Input.GetButtonDown(InputMappings.ButtonY) || Input.GetKeyDown(KeyCode.Y)) && button != null)
                             {
                                 if (button.gameObject.name == "Grab")
@@ -364,7 +364,9 @@ public class RaycastManager : MonoBehaviour
                 {
                     outline.enabled = true;
                     currentInteractable = interactable;
-                    if (Input.GetButtonDown(InputMappings.ButtonX) || Input.GetKeyDown(KeyCode.X))
+                    // Prevent opening object menu if this object is being grabbed by anyone
+                    if ((Input.GetButtonDown(InputMappings.ButtonX) || Input.GetKeyDown(KeyCode.X))
+                        && !VRGrab.IsObjectGrabbedByAnyone(interactable.gameObject))
                     {
                         OpenObjectMenu(interactable);
                     }

@@ -221,4 +221,15 @@ public class VRGrab : MonoBehaviourPun
             grabbedTag = null;
         }
     }
+
+    // Add this static method at the end of the class
+    public static bool IsObjectGrabbedByAnyone(GameObject obj)
+    {
+        foreach (var grabber in GameObject.FindObjectsOfType<VRGrab>())
+        {
+            if (grabber.grabbedObject == obj)
+                return true;
+        }
+        return false;
+    }
 }
