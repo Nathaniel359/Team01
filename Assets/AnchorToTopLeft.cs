@@ -1,7 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 
-public class AnchorToBottomLeft : MonoBehaviourPun
+public class AnchorToTopLeft : MonoBehaviourPun
 {
     public Camera vrCamera;
     public Vector3 offset = new Vector3(0.1f, 0.1f, 2f);
@@ -23,11 +23,11 @@ public class AnchorToBottomLeft : MonoBehaviourPun
     {
         if (!photonView.IsMine) return;
 
-        Vector3 corner = new Vector3(0f, 0f, offset.z);
+        Vector3 corner = new Vector3(0f, 1f, offset.z);
         Vector3 targetPosition = vrCamera.ViewportToWorldPoint(corner);
 
         targetPosition += vrCamera.transform.right * offset.x;
-        targetPosition += vrCamera.transform.up * offset.y;
+        targetPosition += -vrCamera.transform.up * offset.y;
 
         transform.position = targetPosition;
     }
