@@ -121,7 +121,7 @@ public class CharacterMovement : MonoBehaviourPunCallbacks
         if (footstepSource != null && footstepClip != null && photonView.IsMine)
         {
             footstepSource.pitch = Random.Range(0.5f, 1.5f);
-            footstepSource.PlayOneShot(footstepClip);
+            footstepSource.PlayOneShot(footstepClip, 0.5f);
         }
     }
 }
