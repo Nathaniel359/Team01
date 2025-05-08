@@ -1,7 +1,8 @@
-using System.IO;
 using System;
-using HuggingFace.API;
+using System.Collections;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class SpeechToText : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class SpeechToText : MonoBehaviour
     private byte[] bytes;
     private bool recording;
     private Action<string> onResultCallback;
+
+    private const string DeepgramDirectUrl = "https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true";
 
     private void Start()
     {
@@ -52,28 +55,44 @@ public class SpeechToText : MonoBehaviour
         clip.GetData(samples, 0);
         bytes = EncodeAsWAV(samples, clip.frequency, clip.channels);
         recording = false;
-        SendRecording();
+        StartCoroutine(SendToDeepgramLocalUpload());
     }
 
-    private void SendRecording()
+    private IEnumerator SendToDeepgramLocalUpload()
     {
-        HuggingFaceAPI.AutomaticSpeechRecognition(bytes, response =>
+        string apiKey = Environment.DEEPGRAM_API_KEY;
+
+        UnityWebRequest request = new UnityWebRequest(DeepgramDirectUrl, "POST");
+        request.uploadHandler = new UploadHandlerRaw(bytes);
+        request.downloadHandler = new DownloadHandlerBuffer();
+
+        request.SetRequestHeader("Authorization", "Token " + apiKey);
+        request.SetRequestHeader("Content-Type", "audio/wav");
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
         {
-            if (onResultCallback != null)
-            {
-                var cb = onResultCallback;
-                onResultCallback = null;
-                cb(response);
-            }
-        }, error =>
+            Debug.LogError("Deepgram transcription failed: " + request.error);
+            onResultCallback?.Invoke("");
+            yield break;
+        }
+
+        string response = request.downloadHandler.text;
+        string transcript = ExtractTranscript(response);
+        onResultCallback?.Invoke(transcript);
+    }
+
+    private string ExtractTranscript(string json)
+    {
+        if (json.Contains("\"transcript\""))
         {
-            if (onResultCallback != null)
-            {
-                var cb = onResultCallback;
-                onResultCallback = null;
-                cb("");
-            }
-        });
+            int index = json.IndexOf("\"transcript\"");
+            int start = json.IndexOf(":", index) + 2;
+            int end = json.IndexOf("\"", start);
+            return json.Substring(start, end - start);
+        }
+        return "";
     }
 
     private byte[] EncodeAsWAV(float[] samples, int frequency, int channels)
@@ -95,7 +114,6 @@ public class SpeechToText : MonoBehaviour
                 writer.Write((ushort)16);
                 writer.Write("data".ToCharArray());
                 writer.Write(samples.Length * 2);
-
                 foreach (var sample in samples)
                 {
                     writer.Write((short)(sample * short.MaxValue));
