@@ -644,6 +644,8 @@ public class RaycastManager : MonoBehaviour
                 dropdown.Hide();
                 Teleport(dropdown);
                 isTeleportDropdownOpen = false;
+                menuCanvas.SetActive(false);
+                EnableCharacterMovementAndLineRenderer();
             }
         }
     }
